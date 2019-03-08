@@ -19,10 +19,13 @@ func CORSDecorator(CORSFunction handlerFunc) fasthttp.RequestHandler {
         }
 }
 
-// Instance - Экспортируемый экземпляр роутера
+// Instance - router
 var Instance = fasthttprouter.New()
 
 func init() {
 	Instance.GET("/api/score/:index", api.GetNextAfter)
         Instance.GET("/api/user/check", CORSDecorator(api.CheckSession))
+        Instance.POST("/api/user/login", CORSDecorator(api.GetSession))
+        Instance.POST("/api/user/signup", CORSDecorator(api.CreateSession))
+        Instance.GET("/api/user/logout", CORSDecorator(api.DestroySession))
 }
