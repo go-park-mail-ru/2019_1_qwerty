@@ -2,14 +2,22 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"./api"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	router := mux.NewRouter()
 	router.HandleFunc("/api/user/check", api.CheckSession).Methods("GET")
 	router.HandleFunc("/api/user/signup", api.CreateSession).Methods("POST", "OPTIONS")
@@ -20,7 +28,7 @@ func main() {
 	router.HandleFunc("/api/score", api.CreateScore).Methods("POST", "OPTIONS")
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
-	origins := handlers.AllowedOrigins([]string{"http://localhost:8000"})
+	origins := handlers.AllowedOrigins([]string{os.Getenv("FRONTEND")})
 	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "OPTIONS", "PUT"})
 
 	fmt.Println("Api running on port 8080")
