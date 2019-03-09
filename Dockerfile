@@ -1,4 +1,4 @@
-FROM golang:1.11-alpine AS builder
+FROM golang:1.9-alpine3.7 AS builder
 
 RUN apk add --no-cache \
     git
@@ -20,4 +20,5 @@ RUN apk --no-cache add \
 WORKDIR /usr/local/bin
 
 COPY --from=builder /usr/src/app/app .
+COPY .env .
 CMD ["./app"]
