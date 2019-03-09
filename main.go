@@ -27,6 +27,10 @@ func main() {
 	router.HandleFunc("/api/score", api.GetNextAfter).Methods("GET")
 	router.HandleFunc("/api/score", api.CreateScore).Methods("POST", "OPTIONS")
 
+
+	router.HandleFunc("/api/user/uploadimg", api.UploadImage).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/user/avatar/{id:[0-9]+}", api.DownloadImage).Methods("POST", "GET", "OPTIONS")
+
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	origins := handlers.AllowedOrigins([]string{os.Getenv("FRONTEND")})
 	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "OPTIONS", "PUT"})
