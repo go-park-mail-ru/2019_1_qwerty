@@ -2,30 +2,49 @@ package api
 
 import (
 	"encoding/json"
+	"math/rand"
+	"net/http"
+	"strconv"
 
-	"github.com/valyala/fasthttp"
+	models "../models"
 )
 
-type ScoreTable struct {
-	Place string
-	Name  string
-	Score string
+func init() {
+	models.Scores = []models.Score{}
 }
 
-var testScore = []ScoreTable{
-	ScoreTable{"1", "user1", "999"},
-	ScoreTable{"2", "user2", "998"},
-	ScoreTable{"3", "user3", "997"},
-	ScoreTable{"4", "user4", "996"},
-	ScoreTable{"5", "user5", "995"},
+const frameSize = 10
+
+func GetNextAfter(w http.ResponseWriter, r *http.Request) {
+	offset := 0
+	if val, err := strconv.Atoi(r.FormValue("offset")); err == nil {
+		offset = val
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if offset < 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	var answ []models.Score
+	if offset+frameSize < len(models.Scores) {
+		answ = models.Scores[offset : offset+frameSize]
+	} else if offset < len(models.Scores) {
+		answ = models.Scores[offset:]
+	} else {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	json.NewEncoder(w).Encode(answ)
+	w.WriteHeader(http.StatusOK)
 }
 
-func GetNextAfter(ctx *fasthttp.RequestCtx) {
-	ctx.SetContentType("application/json")
-	ctx.SetStatusCode(fasthttp.StatusOK)
-	//index := ctx.UserValue("index").(string)
-
-	//score_json, _ := json.Marshal(testScore)
-	//userVar2fmt.Println(string(score_json))
-	json.NewEncoder(ctx).Encode(testScore)
+func CreateScore(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("name")
+	points := 0
+	if val, err := strconv.Atoi(r.FormValue("points")); err == nil {
+		points = val
+	}
+	models.Scores = append(models.Scores, models.Score{uint64(rand.Intn(100)), name, uint64(points)})
+	w.WriteHeader(http.StatusCreated)
 }
