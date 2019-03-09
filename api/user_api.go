@@ -2,10 +2,12 @@ package api
 
 import (
         "encoding/json"
-	"github.com/valyala/fasthttp"
+        "net/http"
+        "io/ioutil"
         models "../models"
-        "fmt"
         uuid "github.com/satori/uuid"
+        "fmt"
+        "time"
 )
 
 func init() {
@@ -14,77 +16,98 @@ func init() {
 }
 
 //CreateSession - create user
-func CreateSession(ctx *fasthttp.RequestCtx) {
-        var userStruct models.UserRegistration
-        err := json.Unmarshal(ctx.PostBody(), &userStruct)
+func CreateSession(w http.ResponseWriter, r *http.Request) {
+        body, err := ioutil.ReadAll(r.Body)
+
         if err != nil {
+                w.WriteHeader(http.StatusNotFound)
                 return
         }
-        fmt.Println(userStruct)
-        login := userStruct.Name
-        password := userStruct.Password
-        email := userStruct.Email
-        models.Users[login] = models.User {
-                Name: login,
-                Email: email,
-                Password: password,
+
+        userStruct := models.UserRegistration{}
+        jsonErr := json.Unmarshal(body, &userStruct)
+
+        if jsonErr != nil {
+                w.WriteHeader(http.StatusNotFound)
+                return
         }
-        fmt.Println(models.Users)
-        ctx.Write([]byte(login))
-        ctx.SetStatusCode(fasthttp.StatusOK)
+
+        models.Users[userStruct.Name] = models.User {
+                Name: userStruct.Name,
+                Email: userStruct.Email,
+                Password: userStruct.Password,
+        }
+
+        w.WriteHeader(http.StatusOK)
 }
 
 //GetSession - authorization
-func GetSession(ctx *fasthttp.RequestCtx) {
-        var userStruct models.UserLogin
-        err := json.Unmarshal(ctx.PostBody(), &userStruct)
+func GetSession(w http.ResponseWriter, r *http.Request) {
+        body, err := ioutil.ReadAll(r.Body)
+
         if err != nil {
+                w.WriteHeader(http.StatusNotFound)
                 return
         }
-        fmt.Println(userStruct)
-        login := userStruct.Name
-        password := userStruct.Password
-        user, ok := models.Users[login]
-        if !ok || password != user.Password {
-                ctx.SetStatusCode(fasthttp.StatusNotFound)
+
+        userStruct := models.UserLogin{}
+        jsonErr := json.Unmarshal(body, &userStruct)
+
+        if jsonErr != nil {
+                w.WriteHeader(http.StatusNotFound)
                 return
         }
+
+        user, ok := models.Users[userStruct.Name]
+
+        if !ok || userStruct.Password != user.Password {
+                w.WriteHeader(http.StatusNotFound)
+                return
+        }
+
         sessionID, _ := uuid.NewV4()
         models.Sessions[sessionID.String()] = user
-        cookie := fasthttp.Cookie{}
-        cookie.SetKey("sessionid")
-        cookie.SetValue(sessionID.String())
-        cookie.SetPath("/")
-        //cookie.SetHTTPOnly(true)
-        cookie.SetMaxAge(60*60)
-        ctx.Response.Header.SetCookie(&cookie)
-        ctx.SetStatusCode(fasthttp.StatusOK)
+
+        http.SetCookie(w, &http.Cookie{
+                Name: "sessionid",
+                Value: sessionID.String(),
+                Expires: time.Now().Add(60 * time.Hour),
+                Path: "/",
+                HttpOnly: true,
+        })
+
+        w.WriteHeader(http.StatusOK)
 }
 
 //CheckSession - user authorization status
-func CheckSession(ctx *fasthttp.RequestCtx) {
-        cookie := ctx.Request.Header.Cookie("sessionid")
-        if string(cookie) == "" {
-                ctx.SetStatusCode(fasthttp.StatusNotFound)
+func CheckSession(w http.ResponseWriter, r *http.Request) {
+        _, err := r.Cookie("sessionid")
+
+        if err != nil {
+                w.WriteHeader(http.StatusNotFound)
                 return
         }
-        ctx.Write([]byte(models.Sessions[string(cookie)].Name))
-	ctx.SetStatusCode(fasthttp.StatusOK)
+
+        w.WriteHeader(http.StatusOK)
 }
 
 //DestroySession - deauthorization
-func DestroySession(ctx *fasthttp.RequestCtx) {
-        cookieValue := ctx.Request.Header.Cookie("sessionid")
-        if string(cookieValue) == "" {
-                ctx.SetStatusCode(fasthttp.StatusNotFound)
+func DestroySession(w http.ResponseWriter, r *http.Request) {
+        cookie, err := r.Cookie("sessionid")
+
+        if err != nil {
+                w.WriteHeader(http.StatusNotFound)
                 return
         }
-        cookie := fasthttp.Cookie{}
-        cookie.SetKey("sessionid")
-        cookie.SetValue("")
-        cookie.SetPath("/")
-        cookie.SetMaxAge(-1)
-        ctx.Response.Header.SetCookie(&cookie)
-	delete(models.Sessions, string(cookieValue))
-        ctx.SetStatusCode(fasthttp.StatusOK)
+
+        http.SetCookie(w, &http.Cookie{
+                Name: "sessionid",
+                Value: "",
+                Expires: time.Now().AddDate(0, 0, -1),
+                Path: "/",
+                HttpOnly: true,
+        })
+
+	delete(models.Sessions, string(cookie.Value))
+        w.WriteHeader(http.StatusOK)
 }
