@@ -2,15 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
-
 	models "../models"
-	"github.com/gorilla/mux"
 	uuid "github.com/satori/uuid"
 )
 
@@ -113,54 +108,5 @@ func DestroySession(w http.ResponseWriter, r *http.Request) {
 	})
 
 	delete(models.Sessions, string(cookie.Value))
-	w.WriteHeader(http.StatusOK)
-}
-
-// UploadImage - save image on the storage in user folder
-// formData.append('imageFile', file);
-// formData.append('userID', "13")
-func UploadImage(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(5 * 1024 * 1025)
-	file, handler, err := r.FormFile("imageFile")
-	if err != nil {
-		fmt.Println(err)
-		fmt.Print("error\n\n")
-		return
-	}
-
-	userID := r.FormValue("userID")
-	if userID == "" {
-		fmt.Println(err)
-		fmt.Print("error\n\n")
-		return
-	}
-	defer file.Close()
-
-	path := "../static/" + userID
-	if _, err := os.Stat("../static/" + userID); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
-	}
-
-	newPath := path + "/" + handler.Filename
-	newImage, _ := os.Create(newPath)
-	fmt.Print("Saved image: ", newPath, "\n")
-	defer newImage.Close()
-
-	io.Copy(newImage, file)
-	w.WriteHeader(http.StatusAccepted)
-}
-
-// DownloadImage - save image on the storage in user folder
-// formData.append('image', file);
-// formData.append('userID', "13")
-func DownloadImage(w http.ResponseWriter, r *http.Request) {
-	//userID := r.FormValue("userID")
-	vars := mux.Vars(r)
-	id := string(vars["id"])
-
-	path := "../static/" + id + "/avatar.png"
-	fmt.Print("path: ", path)
-	image, _ := os.Open(path)
-	io.Copy(w, image)
 	w.WriteHeader(http.StatusOK)
 }
