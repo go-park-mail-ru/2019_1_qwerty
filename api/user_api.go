@@ -31,7 +31,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	userStruct := models.UserRegistration{}
 	jsonErr := json.Unmarshal(body, &userStruct)
 
-	if jsonErr != nil {
+	if jsonErr != nil || userStruct.Name == models.Users[userStruct.Name].Name {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
