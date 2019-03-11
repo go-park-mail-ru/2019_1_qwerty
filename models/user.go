@@ -27,4 +27,9 @@ type UserLogin struct {
         Password string `json:"password"`
 }
 
+type UserChange struct {
+        Email string `json:"email"`
+        Password string `json:"password"`
+}
+
 var Users map[string]User
