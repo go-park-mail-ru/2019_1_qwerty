@@ -35,6 +35,8 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		Name:     userStruct.Name,
 		Email:    userStruct.Email,
 		Password: userStruct.Password,
+                Score: 0,
+                Avatar: "default.jpg",
 	}
 
 	w.WriteHeader(http.StatusOK)
