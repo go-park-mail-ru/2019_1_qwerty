@@ -10,7 +10,15 @@ import (
 )
 
 func init() {
-	models.Users = map[string]models.User{}
+	models.Users = map[string]models.User{
+                "kostya": models.User{
+                        Name:     "kostya",
+        		Email:    "123@gmail.com",
+        		Password: "12345",
+                        Score: 0,
+                        Avatar: "default.jpg",
+        	},
+        }
 	models.Sessions = map[string]models.User{}
 }
 
@@ -38,6 +46,17 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
                 Score: 0,
                 Avatar: "default.jpg",
 	}
+
+        sessionID, _ := uuid.NewV4()
+	models.Sessions[sessionID.String()] = models.Users[userStruct.Name]
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sessionid",
+		Value:    sessionID.String(),
+		Expires:  time.Now().Add(60 * time.Hour),
+		Path:     "/",
+		HttpOnly: true,
+	})
 
 	w.WriteHeader(http.StatusOK)
 }
