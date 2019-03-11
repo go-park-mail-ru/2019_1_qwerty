@@ -9,6 +9,13 @@ type User struct {
         Avatar string `json:"avatar"`
 }
 
+type UserProfile struct {
+        Name string `json:"name"`
+        Email string `json:"email"`
+        Score uint64 `json:"score"`
+        Avatar string `json:"avatar"`
+}
+
 type UserRegistration struct {
         Name string `json:"nickname"`
         Email string `json:"email"`

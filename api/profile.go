@@ -20,6 +20,13 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 
         user := models.Sessions[string(cookie.Value)]
 
+        userInfo := models.UserProfile {
+                Name: user.Name,
+                Email: user.Email,
+                Score: user.Score,
+                Avatar: user.Avatar,
+        }
+
         if user.Name == "" {
                 w.WriteHeader(http.StatusNotFound)
 		return
@@ -27,7 +34,7 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 
         w.Header().Set("Content-Type", "application/json")
         w.WriteHeader(http.StatusOK)
-        json.NewEncoder(w).Encode(user)
+        json.NewEncoder(w).Encode(userInfo)
 }
 
 //UploadAvatar - upload avatar to static folder
