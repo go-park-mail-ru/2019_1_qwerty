@@ -1,8 +1,8 @@
 package models
 
-//Session 
+//Session
 type Session struct {
-        SessionID string `json:"sessionid"`
+	SessionID string `json:"sessionid"`
 }
 
 var Sessions map[string]User

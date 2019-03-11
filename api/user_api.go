@@ -1,25 +1,25 @@
 package api
 
 import (
+	models "../models"
 	"encoding/json"
+	uuid "github.com/satori/uuid"
 	"io/ioutil"
 	"net/http"
 	"time"
-	models "../models"
-	uuid "github.com/satori/uuid"
-        //"fmt"
+	//"fmt"
 )
 
 func init() {
 	models.Users = map[string]models.User{
-                "kostya": models.User{
-                        Name:     "kostya",
-        		Email:    "123@gmail.com",
-        		Password: "12345",
-                        Score: 0,
-                        Avatar: "default.jpg",
-        	},
-        }
+		"kostya": models.User{
+			Name:     "kostya",
+			Email:    "123@gmail.com",
+			Password: "12345",
+			Score:    0,
+			Avatar:   "default.jpg",
+		},
+	}
 	models.Sessions = map[string]models.User{}
 }
 
@@ -44,11 +44,11 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		Name:     userStruct.Name,
 		Email:    userStruct.Email,
 		Password: userStruct.Password,
-                Score: 0,
-                Avatar: "default.jpg",
+		Score:    0,
+		Avatar:   "default.jpg",
 	}
 
-        sessionID, _ := uuid.NewV4()
+	sessionID, _ := uuid.NewV4()
 	models.Sessions[sessionID.String()] = models.Users[userStruct.Name]
 
 	http.SetCookie(w, &http.Cookie{

@@ -1,11 +1,11 @@
 package api
 
 import (
+	models "../models"
 	"encoding/json"
 	"math/rand"
 	"net/http"
 	"strconv"
-	models "../models"
 )
 
 func init() {
@@ -52,7 +52,7 @@ func CreateScore(w http.ResponseWriter, r *http.Request) {
 	if val, err := strconv.Atoi(r.FormValue("points")); err == nil {
 		points = val
 	}
-        
+
 	models.Scores = append(models.Scores, models.Score{Place: uint64(rand.Intn(100)), Name: name, Points: uint64(points)})
 	w.WriteHeader(http.StatusCreated)
 }
