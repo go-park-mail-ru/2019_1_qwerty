@@ -6,7 +6,8 @@ import (
 	"io"
         "io/ioutil"
 	"net/http"
-        "crypto/md5"
+        "math/rand"
+        "strconv"
         "fmt"
 	models "../models"
 )
@@ -39,27 +40,17 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
         json.NewEncoder(w).Encode(userInfo)
 }
 
-//UploadAvatar - upload avatar to static folder
-func UploadAvatar(w http.ResponseWriter, r *http.Request) {
-
-        fmt.Println("UploadAvatar")
-        fmt.Println(r.Body)
-
-        r.ParseMultipartForm(10 * 1024 * 1024)
+//UpdateAvatar - upload avatar to static folder
+func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+        r.ParseMultipartForm(5 * 1024 * 1024)
         avatar, _, err := r.FormFile("file")
-        defer avatar.Close()
 
         if err != nil {
                 w.WriteHeader(http.StatusNotFound)
                 return
         }
 
-        avatarName := md5.New()
-        io.Copy(avatarName, avatar)
-        path := string(avatarName.Sum(nil)) + ".jpg"
-        image, _ := os.Create("../static/" + path)
-        defer image.Close()
-        io.Copy(image, avatar)
+        defer avatar.Close()
 
         cookie, err := r.Cookie("sessionid")
 
@@ -69,8 +60,19 @@ func UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
         user := models.Sessions[string(cookie.Value)]
+
+        fmt.Println(user)
+
+        path := user.Name + strconv.Itoa(rand.Intn(1000)) + ".png"
+
+        readyAvatar, _ := os.Create("./static/" + path)
+        defer readyAvatar.Close()
+        io.Copy(readyAvatar, avatar)
+
         user.Avatar = path
         models.Sessions[string(cookie.Value)] = user
+
+        fmt.Println(user)
 
         w.WriteHeader(http.StatusOK)
 }

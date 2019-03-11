@@ -13,7 +13,7 @@ import (
 
 func main() {
 	err := godotenv.Load()
-        
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -26,7 +26,7 @@ func main() {
 	router.HandleFunc("/api/user/login", api.GetSession).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/user/logout", api.DestroySession).Methods("GET")
         router.HandleFunc("/api/user/update", api.UpdateProfileInfo).Methods("POST", "OPTIONS")
-        router.HandleFunc("/api/user/avatar", api.UploadAvatar).Methods("POST", "OPTIONS")
+        router.HandleFunc("/api/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
 
         router.HandleFunc("/api/score", api.GetNextAfter).Methods("GET")
         router.HandleFunc("/api/score", api.CreateScore).Methods("POST", "OPTIONS")
