@@ -20,7 +20,7 @@ func TestUserCreate(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateSession)
+	handler := http.HandlerFunc(CreateUser)
 
 	handler.ServeHTTP(rr, req)
 

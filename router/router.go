@@ -1,4 +1,4 @@
-package Router
+package router
 
 import (
 	"net/http"
@@ -12,10 +12,11 @@ var Router = mux.NewRouter()
 
 func init() {
 	Router.HandleFunc("/api/user", api.GetProfileInfo).Methods("GET")
-	Router.HandleFunc("/api/user/check", api.CheckSession).Methods("GET")
-	Router.HandleFunc("/api/user/signup", api.CreateSession).Methods("POST", "OPTIONS")
-	Router.HandleFunc("/api/user/login", api.GetSession).Methods("POST", "OPTIONS")
-	Router.HandleFunc("/api/user/logout", api.DestroySession).Methods("GET")
+	Router.HandleFunc("/api/user/check", api.CheckUserBySession).Methods("GET")
+	Router.HandleFunc("/api/user/signup", api.CreateUser).Methods("POST", "OPTIONS")
+	Router.HandleFunc("/api/user/create", api.CreateUser).Methods("POST", "OPTIONS")
+	Router.HandleFunc("/api/user/login", api.LoginUser).Methods("POST", "OPTIONS")
+	Router.HandleFunc("/api/user/logout", api.LogoutUser).Methods("GET")
 	Router.HandleFunc("/api/user/update", api.UpdateProfileInfo).Methods("POST", "OPTIONS")
 	Router.HandleFunc("/api/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
 
