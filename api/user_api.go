@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -17,17 +16,14 @@ func init() {
 
 //CreateSession - create user
 func CreateSession(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-
+	var userStruct models.UserRegistration
+	err := json.NewDecoder(r.Body).Decode(&userStruct)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	userStruct := models.UserRegistration{}
-	jsonErr := json.Unmarshal(body, &userStruct)
-
-	if jsonErr != nil || userStruct.Name == models.Users[userStruct.Name].Name {
+	if userStruct.Name == models.Users[userStruct.Name].Name {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -51,23 +47,15 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 //GetSession - authorization
 func GetSession(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-
+	var userStruct models.UserLogin
+	err := json.NewDecoder(r.Body).Decode(&userStruct)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	userStruct := models.UserLogin{}
-	jsonErr := json.Unmarshal(body, &userStruct)
-
-	if jsonErr != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
