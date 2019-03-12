@@ -1,25 +1,17 @@
 package api
 
 import (
-	models "../models"
 	"encoding/json"
-	uuid "github.com/satori/uuid"
 	"io/ioutil"
 	"net/http"
 	"time"
-	//"fmt"
+
+	models "../models"
+	uuid "github.com/satori/uuid"
 )
 
 func init() {
-	models.Users = map[string]models.User{
-		"kostya": models.User{
-			Name:     "kostya",
-			Email:    "123@gmail.com",
-			Password: "12345",
-			Score:    0,
-			Avatar:   "default.jpg",
-		},
-	}
+	models.Users = map[string]models.User{}
 	models.Sessions = map[string]models.User{}
 }
 

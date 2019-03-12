@@ -1,7 +1,6 @@
 package api
 
 import (
-	models "../models"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,7 +8,8 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"strconv"
+
+	models "../models"
 )
 
 //GetProfileInfo - return player data
@@ -61,9 +61,11 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	user := models.Sessions[string(cookie.Value)]
 
-	fmt.Println(user)
+	generatedName := make([]byte, 8)
+	rand.Read(generatedName)
+	imageName := fmt.Sprintf("%x", generatedName)
 
-	path := user.Name + strconv.Itoa(rand.Intn(1000)) + ".png"
+	path := imageName + ".png"
 
 	readyAvatar, _ := os.Create("./static/" + path)
 	defer readyAvatar.Close()
@@ -72,7 +74,9 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	user.Avatar = path
 	models.Sessions[string(cookie.Value)] = user
 
-	fmt.Println(user)
+	currentUser := models.Users[user.Name]
+	currentUser.Avatar = path
+	models.Users[user.Name] = currentUser
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -113,6 +117,7 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	models.Sessions[string(cookie.Value)] = user
+
 	currentUser := models.Users[user.Name]
 	currentUser.Email = user.Email
 	currentUser.Password = user.Password
