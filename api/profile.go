@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -83,10 +82,11 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	var userStruct models.UserChange
 
+	err := json.NewDecoder(r.Body).Decode(&userStruct)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -97,23 +97,14 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newUserStruct := models.UserChange{}
-
-	jsonErr := json.Unmarshal(body, &newUserStruct)
-
-	if jsonErr != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
 	user := models.Sessions[string(cookie.Value)]
 
-	if newUserStruct.Email != "" {
-		user.Email = newUserStruct.Email
+	if userStruct.Email != "" {
+		user.Email = userStruct.Email
 	}
 
-	if newUserStruct.Password != "" {
-		user.Password = newUserStruct.Password
+	if userStruct.Password != "" {
+		user.Password = userStruct.Password
 	}
 
 	models.Sessions[string(cookie.Value)] = user
