@@ -1,15 +1,14 @@
 package api
 
 import (
-	models "../models"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
-	"strconv"
+
+	models "../models"
 )
 
 //GetProfileInfo - return player data
@@ -61,9 +60,11 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	user := models.Sessions[string(cookie.Value)]
 
-	fmt.Println(user)
+	generatedName := make([]byte, 8)
+	rand.Read(generatedName)
+	imageName := fmt.Sprintf("%x", generatedName)
 
-	path := user.Name + strconv.Itoa(rand.Intn(1000)) + ".png"
+	path := imageName + ".png"
 
 	readyAvatar, _ := os.Create("./static/" + path)
 	defer readyAvatar.Close()
@@ -72,17 +73,20 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	user.Avatar = path
 	models.Sessions[string(cookie.Value)] = user
 
-	fmt.Println(user)
+	currentUser := models.Users[user.Name]
+	currentUser.Avatar = path
+	models.Users[user.Name] = currentUser
 
 	w.WriteHeader(http.StatusOK)
 }
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	var userStruct models.UserChange
 
+	err := json.NewDecoder(r.Body).Decode(&userStruct)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -93,26 +97,18 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newUserStruct := models.UserChange{}
-
-	jsonErr := json.Unmarshal(body, &newUserStruct)
-
-	if jsonErr != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
 	user := models.Sessions[string(cookie.Value)]
 
-	if newUserStruct.Email != "" {
-		user.Email = newUserStruct.Email
+	if userStruct.Email != "" {
+		user.Email = userStruct.Email
 	}
 
-	if newUserStruct.Password != "" {
-		user.Password = newUserStruct.Password
+	if userStruct.Password != "" {
+		user.Password = userStruct.Password
 	}
 
 	models.Sessions[string(cookie.Value)] = user
+
 	currentUser := models.Users[user.Name]
 	currentUser.Email = user.Email
 	currentUser.Password = user.Password
