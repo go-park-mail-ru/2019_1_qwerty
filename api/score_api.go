@@ -1,11 +1,12 @@
 package api
 
 import (
-	models "../models"
 	"encoding/json"
 	"math/rand"
 	"net/http"
 	"strconv"
+
+	models "../models"
 )
 
 func init() {
@@ -46,7 +47,7 @@ func GetNextAfter(w http.ResponseWriter, r *http.Request) {
 
 //CreateScore - add player to scoreboard
 func CreateScore(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
+	name := "test49" // name = getUsernameByCookie()
 	points := 0
 
 	if val, err := strconv.Atoi(r.FormValue("points")); err == nil {
