@@ -9,6 +9,7 @@ import (
 	"os"
 
 	models "../models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //GetProfileInfo - return player data
@@ -104,7 +105,13 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if userStruct.Password != "" {
-		user.Password = userStruct.Password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userStruct.Password), bcrypt.DefaultCost)
+
+		if err != nil {
+			panic(err)
+		}
+
+		user.Password = hashedPassword
 	}
 
 	models.Sessions[string(cookie.Value)] = user
