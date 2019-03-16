@@ -1,3 +1,5 @@
+[![Build Status](https://drone.brbrroman.ru/api/badges/BrBrRoman/2019_1_qwerty/status.svg?ref=/refs/heads/master)](https://drone.brbrroman.ru/BrBrRoman/2019_1_qwerty)
+
 # 2019_1_qwerty
 
 ## Состав команды
