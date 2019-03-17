@@ -1,6 +1,0 @@
-pipeline:
-  run-tests:
-    image: golang:11
-    commands:
-      - go dep -d
-      - go test ./...
