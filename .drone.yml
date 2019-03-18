@@ -1,6 +1,7 @@
-image: golang:1.9-alpine3.7
-scripts:
-  - apk add git
-  - go get -d
-  - go test ./...
-  - go build -v
+pipeline:
+  backend:
+    image: golang
+    commands:
+      - go get
+      - go build
+      - go test
