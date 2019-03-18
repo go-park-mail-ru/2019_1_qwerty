@@ -19,7 +19,7 @@ func init() {
 	Router.HandleFunc("/api/user/logout", api.LogoutUser).Methods("GET")
 	Router.HandleFunc("/api/user/update", api.UpdateProfileInfo).Methods("POST", "OPTIONS")
 	Router.HandleFunc("/api/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
-
+	Router.HandleFunc("/api/user/pict", api.UpdateAvatar).Methods("POST", "OPTIONS")
 	Router.HandleFunc("/api/score", api.GetNextAfter).Methods("GET")
 	Router.HandleFunc("/api/score", api.CreateScore).Methods("POST", "OPTIONS")
 
