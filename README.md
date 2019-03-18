@@ -1,3 +1,4 @@
+[![Go Report](https://goreportcard.com/badge/github.com/go-park-mail-ru/2019_1_qwerty)](https://goreportcard.com/report/github.com/go-park-mail-ru/2019_1_qwerty)
 # 2019_1_qwerty
 
 ## Состав команды
