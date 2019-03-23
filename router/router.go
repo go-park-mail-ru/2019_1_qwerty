@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"../api"
+	"2019_1_qwerty/api"
+
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )

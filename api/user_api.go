@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	models "../models"
-	sessions "../sessions"
+	models "2019_1_qwerty/models"
+	sessions "2019_1_qwerty/sessions"
 )
 
 func init() {

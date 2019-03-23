@@ -1,12 +1,13 @@
 package api
 
 import (
-	models "../models"
+	models "2019_1_qwerty/models"
+
 	uuid "github.com/satori/uuid"
 )
 
 func CreateSession(user string) string {
-	sessionID, _ := uuid.NewV4()
+	sessionID := uuid.NewV4()
 	models.Sessions[sessionID.String()] = models.Users[user]
 	return sessionID.String()
 }

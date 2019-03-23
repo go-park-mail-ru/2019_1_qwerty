@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"./router"
+	"2019_1_qwerty/router"
 
 	"github.com/joho/godotenv"
 )

@@ -1,4 +1,4 @@
-FROM golang:1.9-alpine3.7 AS builder
+FROM golang:1.12-alpine AS builder
 
 RUN apk add --no-cache \
     git
@@ -6,7 +6,6 @@ RUN apk add --no-cache \
 WORKDIR /usr/src/app
 
 COPY . .
-RUN go get -d
 RUN go build -v
 
 FROM postgres:11-alpine
