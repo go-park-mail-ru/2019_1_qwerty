@@ -1,18 +1,20 @@
 kind: pipeline
 name: default
 
+platform:
+  os: linux
+  arch: arm64
+  
+workspace:
+  base: /go
+  path: src/github.com/go-park-mail-ru/2019_1_qwerty
+
 steps:
 - name: build
-  image: golang
+  image: golang:1.12-alpine
   commands:
-  - go get
+  - export GO111MODULE=on
+  - export PATH=$PATH:/go
+  - apk add git build-base
   - go build
-  - go test -short
-
-- name: integration
-  image: golang
-  commands:
-  - go test -v
-  when:
-    event:
-    - pull_request
+  - go test ./...
