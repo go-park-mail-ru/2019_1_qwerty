@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	models "../models"
-	sessions "../sessions"
+	"golang.org/x/crypto/bcrypt"
+
+	models "2019_1_qwerty/models"
+	sessions "2019_1_qwerty/sessions"
 )
 
 func init() {
@@ -28,10 +30,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userStruct.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		panic(err)
+	}
+
 	models.Users[userStruct.Name] = models.User{
 		Name:     userStruct.Name,
 		Email:    userStruct.Email,
-		Password: userStruct.Password,
+		Password: hashedPassword,
 		Score:    0,
 		Avatar:   "default.jpg",
 	}
@@ -58,7 +66,9 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := models.Users[userStruct.Name]
 
-	if !ok || userStruct.Password != user.Password {
+	err = bcrypt.CompareHashAndPassword(user.Password, []byte(userStruct.Password))
+
+	if !ok || err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
