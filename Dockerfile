@@ -1,6 +1,7 @@
 FROM golang:1.12-alpine AS builder
 
 RUN apk add --no-cache \
+    build-base \
     git
 
 WORKDIR /usr/src/app
@@ -8,7 +9,7 @@ WORKDIR /usr/src/app
 COPY . .
 RUN go build -v
 
-FROM postgres:11-alpine
+FROM alpine
 LABEL maintainer="vekshin.roman@student.bmstu.ru"
 
 ENV PORT 8080
@@ -20,5 +21,5 @@ RUN apk --no-cache add \
 WORKDIR /usr/local/bin
 
 COPY --from=builder /usr/src/app/2019_1_qwerty ./app
-COPY .env .
+COPY . .
 CMD ["./app"]
