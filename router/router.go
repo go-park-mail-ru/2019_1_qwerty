@@ -16,6 +16,7 @@ func Start(port string) error {
 
 	var router = mux.NewRouter()
 	routerAPI := router.PathPrefix("/api").Subrouter()
+	routerAPI.HandleFunc("/version", api.Version).Methods("GET")
 
 	routerAPI.HandleFunc("/user", api.GetProfileInfo).Methods("GET")
 	routerAPI.HandleFunc("/user/check", api.CheckUserBySession).Methods("GET")
