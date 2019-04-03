@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	db "./database"
 	router "./router"
 
 	"github.com/gorilla/handlers"
@@ -18,6 +19,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	if err := db.Open(); err != nil {
+		log.Println(err.Error())
+	}
+	defer db.Close()
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	origins := handlers.AllowedOrigins([]string{os.Getenv("FRONTEND")})
