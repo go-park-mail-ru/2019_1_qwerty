@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"os"
 
-	models "../models"
+	models "2019_1_qwerty/models"
+
 	"golang.org/x/crypto/bcrypt"
 )
 

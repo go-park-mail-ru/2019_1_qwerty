@@ -1,15 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
 	"os"
 
-	db "./database"
-	router "./router"
+	"2019_1_qwerty/database"
+	"2019_1_qwerty/router"
 
-	"github.com/gorilla/handlers"
 	"github.com/joho/godotenv"
 )
 
@@ -20,15 +17,13 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	if err := db.Open(); err != nil {
+	if err := database.Open(); err != nil {
 		log.Println(err.Error())
 	}
-	defer db.Close()
+	defer database.Close()
 
-	headers := handlers.AllowedHeaders([]string{"Content-Type"})
-	origins := handlers.AllowedOrigins([]string{os.Getenv("FRONTEND")})
-	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "OPTIONS", "PUT"})
-
-	fmt.Println("Api running on port 8080")
-	http.ListenAndServe(":8080", handlers.CORS(origins, headers, methods, handlers.AllowCredentials())(router.Router))
+	err = router.Start(os.Getenv("PORT"))
+	if err != nil {
+		panic(err)
+	}
 }
