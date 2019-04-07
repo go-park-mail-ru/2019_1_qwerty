@@ -1,40 +1,38 @@
 package router
 
 import (
+	"2019_1_qwerty/api"
+	"2019_1_qwerty/middlewares"
 	"fmt"
 	"net/http"
-	"os"
 
-	"2019_1_qwerty/api"
-
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
+//Start - router logic
 func Start(port string) error {
 	fmt.Println("Api running on port", port)
 
-	var router = mux.NewRouter()
+	router := mux.NewRouter()
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
+
 	routerAPI := router.PathPrefix("/api").Subrouter()
 	routerAPI.HandleFunc("/version", api.Version).Methods("GET")
-
-	routerAPI.HandleFunc("/user", api.GetProfileInfo).Methods("GET")
-	routerAPI.HandleFunc("/user/check", api.CheckUserBySession).Methods("GET")
 	routerAPI.HandleFunc("/user/signup", api.CreateUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/create", api.CreateUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/login", api.LoginUser).Methods("POST", "OPTIONS")
-	routerAPI.HandleFunc("/user/logout", api.LogoutUser).Methods("GET")
-	routerAPI.HandleFunc("/user/update", api.UpdateProfileInfo).Methods("POST", "OPTIONS")
-	routerAPI.HandleFunc("/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
-
 	routerAPI.HandleFunc("/score", api.GetNextAfter).Methods("GET")
 	routerAPI.HandleFunc("/score", api.CreateScore).Methods("POST", "OPTIONS")
+	routerAPI.HandleFunc("/user/check", api.CheckUserBySession).Methods("GET")
 
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
+	routerLogged := router.PathPrefix("/api").Subrouter()
+	routerLogged.Use(middlewares.AuthorizationMiddleware)
+	routerLogged.HandleFunc("/user", api.GetProfileInfo).Methods("GET", "OPTIONS")
+	routerLogged.HandleFunc("/user/update", api.UpdateProfileInfo).Methods("POST", "OPTIONS")
+	routerLogged.HandleFunc("/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
+	routerLogged.HandleFunc("/user/logout", api.LogoutUser).Methods("GET")
 
-	headers := handlers.AllowedHeaders([]string{"Content-Type"})
-	origins := handlers.AllowedOrigins([]string{os.Getenv("FRONTEND")})
-	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "OPTIONS", "PUT"})
+	serverHandler := middlewares.LogMiddleware(middlewares.ErrorMiddleware(middlewares.CORSMiddleware(router)))
 
-	return http.ListenAndServe(":"+port, handlers.CORS(origins, headers, methods, handlers.AllowCredentials())(router))
+	return http.ListenAndServe(":"+port, serverHandler)
 }
