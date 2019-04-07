@@ -1,4 +1,4 @@
-package handlers
+package api
 
 import (
 	"encoding/json"
@@ -11,8 +11,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"2019_1_qwerty/helpers"
 	"2019_1_qwerty/models"
+	"2019_1_qwerty/sessions"
 )
 
 func init() {
@@ -23,8 +23,7 @@ func init() {
 //CreateUser - create user
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userStruct models.UserRegistration
-	err := json.NewDecoder(r.Body).Decode(&userStruct)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&userStruct); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -50,7 +49,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
-		Value:    helpers.CreateSession(userStruct.Name),
+		Value:    sessions.CreateSession(userStruct.Name),
 		Expires:  time.Now().Add(60 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
@@ -79,7 +78,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
-		Value:    helpers.CreateSession(user.Name),
+		Value:    sessions.CreateSession(user.Name),
 		Expires:  time.Now().Add(60 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
@@ -92,7 +91,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
 	if _, err := r.Cookie("sessionid"); err == nil {
 		w.WriteHeader(http.StatusOK)
-		// if helpers.ValidateSession(cookie.String()) {
+		// if sessions.ValidateSession(cookie.String()) {
 		// 	w.WriteHeader(http.StatusOK)
 		// } else {
 		// 	w.WriteHeader(http.StatusNotFound)
@@ -112,7 +111,7 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			HttpOnly: true,
 		})
-		helpers.DestroySession(string(cookie.Value))
+		sessions.DestroySession(string(cookie.Value))
 	}
 	w.WriteHeader(http.StatusOK)
 }
