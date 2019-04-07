@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	models "2019_1_qwerty/models"
+	"2019_1_qwerty/models"
 )
 
 func init() {

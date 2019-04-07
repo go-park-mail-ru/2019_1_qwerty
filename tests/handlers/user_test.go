@@ -1,6 +1,7 @@
-package api
+package tests
 
 import (
+	"2019_1_qwerty/handlers"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -20,7 +21,7 @@ func TestUserCreate(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateUser)
+	handler := http.HandlerFunc(handlers.CreateUser)
 
 	handler.ServeHTTP(rr, req)
 
