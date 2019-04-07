@@ -1,7 +1,7 @@
-package api
+package helpers
 
 import (
-	models "2019_1_qwerty/models"
+	"2019_1_qwerty/models"
 
 	uuid "github.com/satori/uuid"
 )
