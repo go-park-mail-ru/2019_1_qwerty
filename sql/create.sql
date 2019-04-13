@@ -1,11 +1,14 @@
-CREATE SCHEMA IF NOT EXISTS public;
+-- CREATE SCHEMA IF NOT EXISTS public;
+
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
 
 CREATE EXTENSION IF NOT EXISTS CITEXT;
 
 CREATE TABLE IF NOT EXISTS users (
     nickname        CITEXT PRIMARY KEY COLLATE ucs_basic,
     email           CITEXT UNIQUE,
-    hashedPassword  TEXT NOT NULL,
+    "password"  text,
     avatar          TEXT
 );
 

@@ -1,10 +1,9 @@
 package models
 
 type User struct {
-	//ID uint64 `json:"id"`
-	Name     string `json:"name"`
+	Nickname string `json:"nickname"`
 	Email    string `json:"email"`
-	Password []byte `json:"password"`
+	Password string `json:"password"`
 	Score    uint64 `json:"score"`
 	Avatar   string `json:"avatar"`
 }

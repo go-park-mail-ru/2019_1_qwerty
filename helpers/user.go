@@ -3,31 +3,70 @@ package helpers
 import (
 	"2019_1_qwerty/database"
 	"2019_1_qwerty/models"
+	"log"
 )
 
 const sqlInsertUser = `
-INSERT INTO users(nickname, email, hashedPassword, avatar)
-VALUES ($1, $2, $3, $4)
+INSERT INTO users(nickname, email, "password")
+VALUES ($1, $2, $3)
 `
 
-func DBUserCreate(user *models.User) (*models.Users, error) {
-	_, err := database.Database.Exec(sqlInsertUser, user.Nickname, user.Email, user.Password, user.Avatar)
+// DBUserCreate - Создание пользовтеля
+func DBUserCreate(user *models.User) error {
+	log.Println("DBUserCreate in")
+	_, err := database.Database.Exec(sqlInsertUser, user.Nickname, user.Email, user.Password)
 	if err != nil {
-		return nil, err
+		log.Println("18: ", err)
+		return models.EUserAE
 	}
-	return &user, nil
+	return nil
 }
 
-const sqlSelectUserByNickname = `
-SELECT nickname, email, avatar
-FROM users
-WHERE nickname = $1
-`
+// // DBUserUpdate - Обновление данных о пользователе
+// func DBUserUpdate(user *models.User) error {
+// 	return nil
+// }
 
-func DBUserGetInfoByNickname(nickname string) (*models.User, error) {
-	user models.User
-	row := database.Database.QueryRow(sqlSelectUserByNickname, nickname)
-	if err := row.Scan(&user.Nickname, &user.Email, &user.Avatar); err != nil {
-		return nil, err
-	}
-}
+// const sqlSelectUserPasswordByNickname = `
+// SELECT password
+// FROM users
+// WHERE nickname = $1
+// `
+
+// // DBUserValidate - Валидация по nickname\password
+// func DBUserValidate(user *models.User) error {
+// 	var hashedPassword []byte
+// 	row := database.Database.QueryRow(sqlSelectUserByNickname, user.Nickname)
+// 	if err := row.Scan(&hashedPassword); err != nil {
+// 		return models.EUserNE
+// 	}
+
+// 	upass, _ := hash(user.Password)
+
+// 	if upass != hashedPassword {
+// 		return EWrongPassword
+// 	}
+// 	return nil
+// }
+
+// const sqlSelectUserByNickname = `
+// SELECT nickname, email, avatar
+// FROM users
+// WHERE nickname = $1
+// `
+
+// // DBUserGet - Поиск пользователя по нику
+// func DBUserGet(nickname string) (*models.User, error) {
+// 	var user models.User
+// 	row := database.Database.QueryRow(sqlSelectUserByNickname, nickname)
+// 	if err := row.Scan(&user.Nickname, &user.Email, &user.Avatar); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return user, nil
+// }
+
+// // hash - Функция хеширования пароля
+// func hash(input string) ([]byte, error) {
+// 	return bcrypt.GenerateFromPassword([]byte(input), bcrypt.DefaultCost)
+// }

@@ -13,6 +13,7 @@ func AuthorizationMiddleware(handler http.Handler) http.Handler {
 
 		if err != nil {
 			fmt.Println("user is not logged in!", r.Method, r.URL.Path)
+			w.WriteHeader(http.StatusFound)
 			return
 		}
 
