@@ -46,22 +46,21 @@ func DBUserValidate(user *models.User) error {
 	return nil
 }
 
-// const sqlSelectUserByNickname = `
-// SELECT nickname, email, avatar
-// FROM users
-// WHERE nickname = $1
-// `
+const sqlSelectUserByNickname = `
+SELECT nickname, email, avatar
+FROM users
+WHERE nickname = $1
+`
 
-// // DBUserGet - Поиск пользователя по нику
-// func DBUserGet(nickname string) (*models.User, error) {
-// 	var user models.User
-// 	row := database.Database.QueryRow(sqlSelectUserByNickname, nickname)
-// 	if err := row.Scan(&user.Nickname, &user.Email, &user.Avatar); err != nil {
-// 		return nil, err
-// 	}
-
-// 	return user, nil
-// }
+// DBUserGet - Поиск пользователя по нику
+func DBUserGet(nickname string) (*models.User, error) {
+	var user models.User
+	row := database.Database.QueryRow(sqlSelectUserByNickname, nickname)
+	if err := row.Scan(&user.Nickname, &user.Email, &user.Avatar); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
 
 // // hash - Функция хеширования пароля
 // func hash(input string) ([]byte, error) {

@@ -8,7 +8,7 @@ import (
 
 func CreateSession(user string) string {
 	sessionID := uuid.NewV4()
-	models.Sessions[sessionID.String()] = models.Users[user]
+	models.Sessions[sessionID.String()] = user
 	return sessionID.String()
 }
 
@@ -19,4 +19,9 @@ func DestroySession(sessionID string) {
 func ValidateSession(sessionID string) bool {
 	_, ok := models.Sessions[sessionID]
 	return ok
+}
+
+func GetOwner(sessionID string) string {
+	res, _ := models.Sessions[sessionID]
+	return res
 }

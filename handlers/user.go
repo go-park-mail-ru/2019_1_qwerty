@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	models.Sessions = map[string]models.User{}
+	models.Sessions = map[string]string{}
 }
 
 // CreateUser - Создание пользователя
@@ -95,19 +95,25 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// //GetProfileInfo - return player data
-// func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-// 	cookie, err := r.Cookie("sessionid")
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusNotFound)
-// 		return
-// 	}
+//GetProfileInfo - return player data
+func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	cookie, err := r.Cookie("sessionid")
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	user := helpers.GetOwner(string(cookie.Value))
+	res, err := helpers.DBUserGet(user)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-// 	// get nickname from cookie
-// 	res, err = DBGetUser(nickname)
-// 	helpers.ErroRouter(&w, res, err, http.StatusOK)
-// }
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+	// helpers.ErroRouter(&w, res, err, http.StatusOK)
+}
 
 // //UpdateAvatar - upload avatar to static folder
 // func UpdateAvatar(w http.ResponseWriter, r *http.Request) {

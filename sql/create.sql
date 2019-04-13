@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     nickname        CITEXT PRIMARY KEY COLLATE ucs_basic,
     email           CITEXT UNIQUE,
     "password"  text,
-    avatar          TEXT
+    avatar          TEXT DEFAULT 'default.jpg'
 );
 
 CREATE TABLE IF NOT EXISTS games (
