@@ -3,7 +3,6 @@ package helpers
 import (
 	"2019_1_qwerty/database"
 	"2019_1_qwerty/models"
-	"log"
 )
 
 const sqlInsertUser = `
@@ -13,10 +12,8 @@ VALUES ($1, $2, $3)
 
 // DBUserCreate - Создание пользовтеля
 func DBUserCreate(user *models.User) error {
-	log.Println("DBUserCreate in")
 	_, err := database.Database.Exec(sqlInsertUser, user.Nickname, user.Email, user.Password)
 	if err != nil {
-		log.Println("18: ", err)
 		return models.EUserAE
 	}
 	return nil

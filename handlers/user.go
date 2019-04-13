@@ -10,6 +10,10 @@ import (
 	"2019_1_qwerty/models"
 )
 
+func init() {
+	models.Sessions = map[string]models.User{}
+}
+
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
@@ -18,7 +22,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Println("Data: ", user)
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
 		log.Println("CreateUserm: DBUserCreate: ", err)
