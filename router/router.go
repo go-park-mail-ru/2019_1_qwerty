@@ -20,7 +20,7 @@ func Start(port string) error {
 	routerAPI.HandleFunc("/version", api.Version).Methods("GET")
 	routerAPI.HandleFunc("/user/signup", api.CreateUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/create", api.CreateUser).Methods("POST", "OPTIONS")
-	// routerAPI.HandleFunc("/user/login", api.LoginUser).Methods("POST", "OPTIONS")
+	routerAPI.HandleFunc("/user/login", api.LoginUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/score", api.GetNextAfter).Methods("GET")
 	routerAPI.HandleFunc("/score", api.CreateScore).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/check", api.CheckUserBySession).Methods("GET")
@@ -30,7 +30,7 @@ func Start(port string) error {
 	// routerLogged.HandleFunc("/user", api.GetProfileInfo).Methods("GET", "OPTIONS")
 	// routerLogged.HandleFunc("/user/update", api.UpdateProfileInfo).Methods("POST", "OPTIONS")
 	// routerLogged.HandleFunc("/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
-	// routerLogged.HandleFunc("/user/logout", api.LogoutUser).Methods("GET")
+	routerLogged.HandleFunc("/user/logout", api.LogoutUser).Methods("GET")
 
 	serverHandler := middlewares.LogMiddleware(middlewares.ErrorMiddleware(middlewares.CORSMiddleware(router)))
 

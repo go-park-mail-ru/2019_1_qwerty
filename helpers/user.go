@@ -24,27 +24,27 @@ func DBUserCreate(user *models.User) error {
 // 	return nil
 // }
 
-// const sqlSelectUserPasswordByNickname = `
-// SELECT password
-// FROM users
-// WHERE nickname = $1
-// `
+const sqlSelectUserPasswordByNickname = `
+SELECT password
+FROM users
+WHERE nickname = $1
+`
 
-// // DBUserValidate - Валидация по nickname\password
-// func DBUserValidate(user *models.User) error {
-// 	var hashedPassword []byte
-// 	row := database.Database.QueryRow(sqlSelectUserByNickname, user.Nickname)
-// 	if err := row.Scan(&hashedPassword); err != nil {
-// 		return models.EUserNE
-// 	}
+// DBUserValidate - Валидация по nickname\password
+func DBUserValidate(user *models.User) error {
+	var dbPassw string
+	row := database.Database.QueryRow(sqlSelectUserPasswordByNickname, user.Nickname)
+	if err := row.Scan(&dbPassw); err != nil {
+		return models.EUserNE
+	}
 
-// 	upass, _ := hash(user.Password)
+	// upass, _ := hash(user.Password)
 
-// 	if upass != hashedPassword {
-// 		return EWrongPassword
-// 	}
-// 	return nil
-// }
+	if user.Password != dbPassw {
+		return models.EWrongPassword
+	}
+	return nil
+}
 
 // const sqlSelectUserByNickname = `
 // SELECT nickname, email, avatar

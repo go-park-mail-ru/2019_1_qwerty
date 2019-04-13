@@ -25,6 +25,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
 		log.Println("CreateUserm: DBUserCreate: ", err)
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
@@ -38,27 +39,32 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// // LoginUser - авторизация
-// func LoginUser(w http.ResponseWriter, r *http.Request) {
-// 	var userStruct models.User
-// 	err := json.NewDecoder(r.Body).Decode(&userStruct)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		return
-// 	}
+// LoginUser - авторизация
+func LoginUser(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-// 	res, err = helpers.DBValidateUser(&user)
+	err = helpers.DBUserValidate(&user)
+	if err != nil {
+		log.Println("LoginUser: DBValidateUser: ", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-// 	http.SetCookie(w, &http.Cookie{
-// 		Name:     "sessionid",
-// 		Value:    helpers.CreateSession(res.Name),
-// 		Expires:  time.Now().Add(60 * time.Hour),
-// 		Path:     "/",
-// 		HttpOnly: true,
-// 	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sessionid",
+		Value:    helpers.CreateSession(user.Nickname),
+		Expires:  time.Now().Add(60 * time.Hour),
+		Path:     "/",
+		HttpOnly: true,
+	})
 
-// 	w.WriteHeader(http.StatusOK)
-// }
+	w.WriteHeader(http.StatusOK)
+}
 
 //CheckUserBySession - user authorization status // Разобрать говно потом
 func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
@@ -74,20 +80,20 @@ func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// //LogoutUser - deauthorization // Разобрать говно потом
-// func LogoutUser(w http.ResponseWriter, r *http.Request) {
-// 	if cookie, err := r.Cookie("sessionid"); err == nil {
-// 		http.SetCookie(w, &http.Cookie{
-// 			Name:     "sessionid",
-// 			Value:    "",
-// 			Expires:  time.Now().AddDate(0, 0, -1),
-// 			Path:     "/",
-// 			HttpOnly: true,
-// 		})
-// 		helpers.DestroySession(string(cookie.Value))
-// 	}
-// 	w.WriteHeader(http.StatusOK)
-// }
+//LogoutUser - deauthorization // Разобрать говно потом
+func LogoutUser(w http.ResponseWriter, r *http.Request) {
+	if cookie, err := r.Cookie("sessionid"); err == nil {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "sessionid",
+			Value:    "",
+			Expires:  time.Now().AddDate(0, 0, -1),
+			Path:     "/",
+			HttpOnly: true,
+		})
+		helpers.DestroySession(string(cookie.Value))
+	}
+	w.WriteHeader(http.StatusOK)
+}
 
 // //GetProfileInfo - return player data
 // func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
