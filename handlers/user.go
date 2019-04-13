@@ -153,31 +153,27 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 // 	w.WriteHeader(http.StatusOK)
 // }
 
-// //UpdateProfileInfo - updates player data
-// func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-// 	var userStruct models.UserChange
+//UpdateProfileInfo - updates player data
+func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		log.Println("encode: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-// 	err := json.NewDecoder(r.Body).Decode(&userStruct)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		return
-// 	}
+	cookie, err := r.Cookie("sessionid")
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-// 	cookie, err := r.Cookie("sessionid")
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusNotFound)
-// 		return
-// 	}
-
-// 	user := models.Sessions[string(cookie.Value)]
-// 	res, err = DBUpdateUser(nickname)
-
-// 	models.Sessions[string(cookie.Value)] = user
-
-// 	currentUser := models.Users[user.Name]
-// 	currentUser.Email = user.Email
-// 	currentUser.Password = user.Password
-// 	models.Users[user.Name] = currentUser
-
-// 	w.WriteHeader(http.StatusOK)
-// }
+	nickname := helpers.GetOwner(string(cookie.Value))
+	log.Println(nickname)
+	err = helpers.DBUserUpdate(nickname, &user)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}

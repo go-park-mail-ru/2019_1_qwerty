@@ -19,10 +19,20 @@ func DBUserCreate(user *models.User) error {
 	return nil
 }
 
-// // DBUserUpdate - Обновление данных о пользователе
-// func DBUserUpdate(user *models.User) error {
-// 	return nil
-// }
+const sqlUpdateUserByNickname = `
+UPDATE users
+SET email = COALESCE(NULLIF($2, ''), email), password = COALESCE(NULLIF($3, ''), password)
+WHERE nickname = $1
+`
+
+// DBUserUpdate - Обновление данных о пользователе
+func DBUserUpdate(nickname string, user *models.User) error {
+	_, err := database.Database.Exec(sqlUpdateUserByNickname, nickname, user.Email, user.Password)
+	if err != nil {
+		return models.EUserAE
+	}
+	return nil
+}
 
 const sqlSelectUserPasswordByNickname = `
 SELECT password
