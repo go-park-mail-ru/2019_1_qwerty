@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -14,21 +13,15 @@ import (
 	"2019_1_qwerty/models"
 )
 
-func init() {
-	models.Sessions = map[string]string{}
-}
-
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println("encode: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
-		log.Println("CreateUserm: DBUserCreate: ", err)
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
@@ -54,7 +47,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	err = helpers.DBUserValidate(&user)
 	if err != nil {
-		log.Println("LoginUser: DBValidateUser: ", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -159,7 +151,6 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println("encode: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
