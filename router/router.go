@@ -29,7 +29,7 @@ func Start(port string) error {
 	routerLogged.Use(middlewares.AuthorizationMiddleware)
 	routerLogged.HandleFunc("/user", api.GetProfileInfo).Methods("GET", "OPTIONS")
 	routerLogged.HandleFunc("/user/update", api.UpdateProfileInfo).Methods("POST", "OPTIONS")
-	// routerLogged.HandleFunc("/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
+	routerLogged.HandleFunc("/user/avatar", api.UpdateAvatar).Methods("POST", "OPTIONS")
 	routerLogged.HandleFunc("/user/logout", api.LogoutUser).Methods("GET")
 
 	serverHandler := middlewares.LogMiddleware(middlewares.ErrorMiddleware(middlewares.CORSMiddleware(router)))

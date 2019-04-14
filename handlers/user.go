@@ -2,8 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
+	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"2019_1_qwerty/helpers"
@@ -115,43 +119,41 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	// helpers.ErroRouter(&w, res, err, http.StatusOK)
 }
 
-// //UpdateAvatar - upload avatar to static folder
-// func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-// 	r.ParseMultipartForm(5 * 1024 * 1024)
-// 	avatar, _, err := r.FormFile("file")
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusNotFound)
-// 		return
-// 	}
-// 	defer avatar.Close()
+//UpdateAvatar - upload avatar to static folder
+func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(5 * 1024 * 1024)
+	avatar, _, err := r.FormFile("file")
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	defer avatar.Close()
 
-// 	cookie, err := r.Cookie("sessionid")
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusNotFound)
-// 		return
-// 	}
+	cookie, err := r.Cookie("sessionid")
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-// 	user := models.Sessions[string(cookie.Value)]
+	nickname := helpers.GetOwner(string(cookie.Value))
 
-// 	generatedName := make([]byte, 8)
-// 	rand.Read(generatedName)
-// 	imageName := fmt.Sprintf("%x", generatedName)
+	generatedName := make([]byte, 8)
+	rand.Read(generatedName)
+	imageName := fmt.Sprintf("%x", generatedName)
 
-// 	path := imageName + ".png"
+	path := imageName + ".png"
 
-// 	readyAvatar, _ := os.Create("./static/" + path)
-// 	defer readyAvatar.Close()
-// 	io.Copy(readyAvatar, avatar)
+	readyAvatar, _ := os.Create("./static/" + path)
+	defer readyAvatar.Close()
+	io.Copy(readyAvatar, avatar)
 
-// 	user.Avatar = path // имя аватарки
-// 	// models.Sessions[string(cookie.Value)] = user
-
-// 	currentUser := models.Users[user.Name]
-// 	currentUser.Avatar = path
-// 	models.Users[user.Name] = currentUser
-
-// 	w.WriteHeader(http.StatusOK)
-// }
+	err = helpers.DBUserUpdateAvatar(nickname, path)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
@@ -169,7 +171,6 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	nickname := helpers.GetOwner(string(cookie.Value))
-	log.Println(nickname)
 	err = helpers.DBUserUpdate(nickname, &user)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
