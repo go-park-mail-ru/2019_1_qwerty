@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"2019_1_qwerty/helpers"
 	"fmt"
 	"net/http"
 )
@@ -9,9 +10,9 @@ import (
 func AuthorizationMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("auth check")
-		_, err := r.Cookie("sessionid")
+		cookie, _ := r.Cookie("sessionid")
 
-		if err != nil {
+		if logged := helpers.ValidateSession(string(cookie.Value)); logged != true {
 			fmt.Println("user is not logged in!", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusFound)
 			return
