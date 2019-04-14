@@ -18,7 +18,7 @@ func main() {
 	}
 	defer database.Close()
 
-	err = router.Start(os.Getenv("PORT"))
+	err := router.Start(os.Getenv("PORT"))
 	if err != nil {
 		panic(err)
 	}

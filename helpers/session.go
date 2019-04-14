@@ -26,21 +26,17 @@ func init() {
 
 func CreateSession(user string) string {
 	sessionID := (uuid.NewV4()).String()
-	_, _ := redis.String(c.Do("SET", sessionID, user, "EX", 86400))
+	_, _ = redis.String(c.Do("SET", sessionID, user, "EX", 86400))
 	return sessionID
 }
 
 func DestroySession(sessionID string) {
-	_, _ := c.Do("DEL", sessionID)
+	_, _ = c.Do("DEL", sessionID)
 }
 
 func ValidateSession(sessionID string) bool {
 	_, err := redis.String(c.Do("GET", sessionID))
-	if err == redis.ErrNil {
-		return false
-	} else {
-		return true
-	}
+	return (err != redis.ErrNil)
 }
 
 func GetOwner(sessionID string) string {

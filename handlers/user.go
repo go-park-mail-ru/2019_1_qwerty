@@ -28,7 +28,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
 		Value:    helpers.CreateSession(user.Nickname),
-		Expires:  time.Now().Add(60 * time.Hour),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
 	})
@@ -54,7 +54,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
 		Value:    helpers.CreateSession(user.Nickname),
-		Expires:  time.Now().Add(60 * time.Hour),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
 	})
@@ -64,13 +64,19 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 //CheckUserBySession - user authorization status // Разобрать говно потом
 func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
-	if _, err := r.Cookie("sessionid"); err == nil {
+	if cookie, err := r.Cookie("sessionid"); err == nil {
+		if helpers.ValidateSession(string(cookie.Value)) != true {
+			http.SetCookie(w, &http.Cookie{
+				Name:     "sessionid",
+				Value:    "",
+				Expires:  time.Now().AddDate(0, 0, -1),
+				Path:     "/",
+				HttpOnly: true,
+			})
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
-		// if helpers.ValidateSession(cookie.String()) {
-		// 	w.WriteHeader(http.StatusOK)
-		// } else {
-		// 	w.WriteHeader(http.StatusNotFound)
-		// }
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 	}
