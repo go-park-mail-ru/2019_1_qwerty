@@ -3,28 +3,19 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
 	_ "github.com/lib/pq"
-
-	"github.com/joho/godotenv"
 )
 
-// // Database structure
-// type Database struct {
-// 	Pool   *pgx.ConnPool
-// 	Status models.Status
-// }
-
-// // Instance of database
 var Database *sql.DB
 
-func init() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
+// Open - инициализация подключения к БД
+func Open() error {
+	if Database != nil {
+		return fmt.Errorf("db: Error: Database already opened")
 	}
 
 	postgresConfig := map[string]string{
@@ -36,24 +27,38 @@ func init() {
 		"password": os.Getenv("POSTGRES_PASSWORD"),
 	}
 
-	var DB_CONNECT_STRING string
+	var pgConfigString string
+
 	for key, val := range postgresConfig {
-		DB_CONNECT_STRING += fmt.Sprintf("%s=%s ", key, val)
+		pgConfigString += fmt.Sprintf("%s=%s ", key, val)
 	}
 
-	db, err := sql.Open("postgres", DB_CONNECT_STRING)
-
+	var err error
+	Database, err = sql.Open("postgres", pgConfigString)
 	if err != nil {
-		log.Fatal("db: Error: The data source arguments are not valid")
+		return err
 	}
-
-	Database = db
 
 	err = Database.Ping()
-
 	if err != nil {
-		log.Fatal("db: Error: Could not establish a connection with the database")
+		return err
 	}
 
-	log.Println("db: Connection: OK!")
+	// Создание таблиц
+	if query, err := ioutil.ReadFile("sql/create.sql"); err != nil {
+		return err
+	} else {
+		if _, err := Database.Exec(string(query)); err != nil {
+			return err
+		}
+	}
+	log.Println("db: Connection: Initialized")
+
+	return nil
+}
+
+// Close - Закрытие подключения к БД
+func Close() error {
+	log.Println("db: Connection: Closed")
+	return Database.Close()
 }
