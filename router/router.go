@@ -1,12 +1,10 @@
 package router
 
 import (
-	"2019_1_qwerty/api"
+	api "2019_1_qwerty/handlers"
 	"2019_1_qwerty/middlewares"
 	"fmt"
 	"net/http"
-	"os"
-	api "2019_1_qwerty/handlers"
 
 	"github.com/gorilla/mux"
 )
@@ -26,6 +24,7 @@ func Start(port string) error {
 	routerAPI.HandleFunc("/score", api.GetNextAfter).Methods("GET")
 	routerAPI.HandleFunc("/score", api.CreateScore).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/check", api.CheckUserBySession).Methods("GET")
+	routerAPI.HandleFunc("/ws", api.WebsocketConn).Methods("GET", "POST")
 
 	routerLogged := router.PathPrefix("/api").Subrouter()
 	routerLogged.Use(middlewares.AuthorizationMiddleware)

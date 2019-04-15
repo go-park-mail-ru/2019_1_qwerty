@@ -9,49 +9,26 @@ import (
 	"os"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"2019_1_qwerty/helpers"
 	"2019_1_qwerty/models"
 )
 
-func init() {
-	models.Users = map[string]models.User{}
-	models.Sessions = map[string]models.User{}
-}
-
-//CreateUser - create user
+// CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	var userStruct models.UserRegistration
-	err := json.NewDecoder(r.Body).Decode(&userStruct)
-	if err != nil {
+	var user models.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	if userStruct.Name == models.Users[userStruct.Name].Name {
-		w.WriteHeader(http.StatusNotFound)
+	err := helpers.DBUserCreate(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userStruct.Password), bcrypt.DefaultCost)
-
-	if err != nil {
-		panic(err)
-	}
-
-	models.Users[userStruct.Name] = models.User{
-		Name:     userStruct.Name,
-		Email:    userStruct.Email,
-		Password: hashedPassword,
-		Score:    0,
-		Avatar:   "default.jpg",
-	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
-		Value:    helpers.CreateSession(userStruct.Name),
-		Expires:  time.Now().Add(60 * time.Hour),
+		Value:    helpers.CreateSession(user.Nickname),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
 	})
@@ -59,28 +36,25 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-//LoginUser - authorization
+// LoginUser - авторизация
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	var userStruct models.UserLogin
-	err := json.NewDecoder(r.Body).Decode(&userStruct)
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	user, ok := models.Users[userStruct.Name]
-
-	err = bcrypt.CompareHashAndPassword(user.Password, []byte(userStruct.Password))
-
-	if !ok || err != nil {
+	err = helpers.DBUserValidate(&user)
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
-		Value:    helpers.CreateSession(user.Name),
-		Expires:  time.Now().Add(60 * time.Hour),
+		Value:    helpers.CreateSession(user.Nickname),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
 	})
@@ -88,21 +62,27 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-//CheckUserBySession - user authorization status
+//CheckUserBySession - user authorization status // Разобрать говно потом
 func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
-	if _, err := r.Cookie("sessionid"); err == nil {
+	if cookie, err := r.Cookie("sessionid"); err == nil {
+		if helpers.ValidateSession(string(cookie.Value)) != true {
+			http.SetCookie(w, &http.Cookie{
+				Name:     "sessionid",
+				Value:    "",
+				Expires:  time.Now().AddDate(0, 0, -1),
+				Path:     "/",
+				HttpOnly: true,
+			})
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
-		// if helpers.ValidateSession(cookie.String()) {
-		// 	w.WriteHeader(http.StatusOK)
-		// } else {
-		// 	w.WriteHeader(http.StatusNotFound)
-		// }
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 	}
 }
 
-//LogoutUser - deauthorization
+//LogoutUser - deauthorization // Разобрать говно потом
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
 	if cookie, err := r.Cookie("sessionid"); err == nil {
 		http.SetCookie(w, &http.Cookie{
@@ -119,52 +99,41 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 
 //GetProfileInfo - return player data
 func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	cookie, err := r.Cookie("sessionid")
-
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	user := helpers.GetOwner(string(cookie.Value))
+	res, err := helpers.DBUserGet(user)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	user := models.Sessions[string(cookie.Value)]
-
-	userInfo := models.UserProfile{
-		Name:   user.Name,
-		Email:  user.Email,
-		Score:  user.Score,
-		Avatar: user.Avatar,
-	}
-
-	if user.Name == "" {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(userInfo)
+	json.NewEncoder(w).Encode(res)
+	// helpers.ErroRouter(&w, res, err, http.StatusOK)
 }
 
 //UpdateAvatar - upload avatar to static folder
 func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * 1024 * 1024)
 	avatar, _, err := r.FormFile("file")
-
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
 	defer avatar.Close()
 
 	cookie, err := r.Cookie("sessionid")
-
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	user := models.Sessions[string(cookie.Value)]
+	nickname := helpers.GetOwner(string(cookie.Value))
 
 	generatedName := make([]byte, 8)
 	rand.Read(generatedName)
@@ -176,55 +145,33 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	defer readyAvatar.Close()
 	io.Copy(readyAvatar, avatar)
 
-	user.Avatar = path
-	models.Sessions[string(cookie.Value)] = user
-
-	currentUser := models.Users[user.Name]
-	currentUser.Avatar = path
-	models.Users[user.Name] = currentUser
-
+	err = helpers.DBUserUpdateAvatar(nickname, path)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	var userStruct models.UserChange
-
-	err := json.NewDecoder(r.Body).Decode(&userStruct)
-	if err != nil {
+	var user models.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	cookie, err := r.Cookie("sessionid")
-
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	user := models.Sessions[string(cookie.Value)]
-
-	if userStruct.Email != "" {
-		user.Email = userStruct.Email
+	nickname := helpers.GetOwner(string(cookie.Value))
+	err = helpers.DBUserUpdate(nickname, &user)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
-
-	if userStruct.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userStruct.Password), bcrypt.DefaultCost)
-
-		if err != nil {
-			panic(err)
-		}
-
-		user.Password = hashedPassword
-	}
-
-	models.Sessions[string(cookie.Value)] = user
-
-	currentUser := models.Users[user.Name]
-	currentUser.Email = user.Email
-	currentUser.Password = user.Password
-	models.Users[user.Name] = currentUser
-
 	w.WriteHeader(http.StatusOK)
 }

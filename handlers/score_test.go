@@ -1,7 +1,6 @@
-package tests
+package handlers
 
 import (
-	"2019_1_qwerty/handlers"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,7 +13,7 @@ func TestScoreCreate(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateScore)
+	handler := http.HandlerFunc(CreateScore)
 
 	handler.ServeHTTP(rr, req)
 
@@ -32,7 +31,7 @@ func TestGetScore(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.GetNextAfter)
+	handler := http.HandlerFunc(GetNextAfter)
 
 	handler.ServeHTTP(rr, req)
 

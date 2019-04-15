@@ -6,13 +6,16 @@ RUN apk add --no-cache \
 
 WORKDIR /usr/src/app
 
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
 COPY . .
 RUN go build -v
 
 FROM alpine
 LABEL maintainer="vekshin.roman@student.bmstu.ru"
 
-ENV PORT 8080
 EXPOSE $PORT
 
 RUN apk --no-cache add \
