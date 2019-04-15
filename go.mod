@@ -6,6 +6,7 @@ require (
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gobwas/gws v0.0.0-20170427155341-6ec9a5ac805b // indirect
+	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/gorilla/handlers v1.4.0
 	github.com/gorilla/mux v1.7.0
 	github.com/gorilla/websocket v1.4.0

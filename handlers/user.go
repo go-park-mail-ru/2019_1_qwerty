@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -14,28 +13,22 @@ import (
 	"2019_1_qwerty/models"
 )
 
-func init() {
-	models.Sessions = map[string]string{}
-}
-
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println("encode: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
-		log.Println("CreateUserm: DBUserCreate: ", err)
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
 		Value:    helpers.CreateSession(user.Nickname),
-		Expires:  time.Now().Add(60 * time.Hour),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
 	})
@@ -54,7 +47,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	err = helpers.DBUserValidate(&user)
 	if err != nil {
-		log.Println("LoginUser: DBValidateUser: ", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -62,7 +54,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
 		Value:    helpers.CreateSession(user.Nickname),
-		Expires:  time.Now().Add(60 * time.Hour),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
 	})
@@ -72,13 +64,19 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 //CheckUserBySession - user authorization status // Разобрать говно потом
 func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
-	if _, err := r.Cookie("sessionid"); err == nil {
+	if cookie, err := r.Cookie("sessionid"); err == nil {
+		if helpers.ValidateSession(string(cookie.Value)) != true {
+			http.SetCookie(w, &http.Cookie{
+				Name:     "sessionid",
+				Value:    "",
+				Expires:  time.Now().AddDate(0, 0, -1),
+				Path:     "/",
+				HttpOnly: true,
+			})
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
-		// if helpers.ValidateSession(cookie.String()) {
-		// 	w.WriteHeader(http.StatusOK)
-		// } else {
-		// 	w.WriteHeader(http.StatusNotFound)
-		// }
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 	}
@@ -159,7 +157,6 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println("encode: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

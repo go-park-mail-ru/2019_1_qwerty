@@ -1,27 +1,45 @@
 package helpers
 
 import (
-	"2019_1_qwerty/models"
+	"log"
+	"os"
 
+	"github.com/gomodule/redigo/redis"
+	"github.com/joho/godotenv"
 	uuid "github.com/satori/uuid"
 )
 
+var (
+	c redis.Conn
+)
+
+func init() {
+	_ = godotenv.Load()
+	var err error
+	c, err = redis.DialURL(os.Getenv("REDIS_URL"))
+	if err != nil {
+		log.Println("Redis: ", err)
+		return
+	}
+	log.Println("Redis: Connection: Initialized")
+}
+
 func CreateSession(user string) string {
-	sessionID := uuid.NewV4()
-	models.Sessions[sessionID.String()] = user
-	return sessionID.String()
+	sessionID := (uuid.NewV4()).String()
+	_, _ = redis.String(c.Do("SET", sessionID, user, "EX", 86400))
+	return sessionID
 }
 
 func DestroySession(sessionID string) {
-	delete(models.Sessions, sessionID)
+	_, _ = c.Do("DEL", sessionID)
 }
 
 func ValidateSession(sessionID string) bool {
-	_, ok := models.Sessions[sessionID]
-	return ok
+	_, err := redis.String(c.Do("GET", sessionID))
+	return (err != redis.ErrNil)
 }
 
 func GetOwner(sessionID string) string {
-	res, _ := models.Sessions[sessionID]
+	res, _ := redis.String(c.Do("GET", sessionID))
 	return res
 }

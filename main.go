@@ -11,18 +11,14 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load()
 
 	if err := database.Open(); err != nil {
 		log.Println(err.Error())
 	}
 	defer database.Close()
 
-	err = router.Start(os.Getenv("PORT"))
+	err := router.Start(os.Getenv("PORT"))
 	if err != nil {
 		panic(err)
 	}
