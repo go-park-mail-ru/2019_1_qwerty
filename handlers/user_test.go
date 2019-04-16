@@ -1,36 +1,74 @@
 package handlers
 
 import (
+	"bytes"
+	"database/sql"
+	"encoding/json"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"2019_1_qwerty/database"
+	"2019_1_qwerty/helpers"
+
+	"github.com/gomodule/redigo/redis"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// func TestUserCreate(t *testing.T) {
-// 	// var err error
-// 	db, err := sql.Open("sqlite3", ":memory")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer db.Close()
+const createUserTable = `
+CREATE TABLE IF NOT EXISTS users (
+    nickname        CITEXT PRIMARY KEY,
+    email           CITEXT UNIQUE,
+    "password"  text,
+    avatar          TEXT DEFAULT 'default0.jpg'
+);`
 
-// 	data, _ := json.Marshal(map[string]string{"nickname": "test", "email": "Test@test.ru", "password": "Test"})
-// 	buf := bytes.NewBuffer(data)
-// 	req, err := http.NewRequest("POST", "/user/create", buf)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+func init() {
+	var err error
+	_ = godotenv.Load()
+	helpers.RedisConnect, err = redis.DialURL("redis://redis@localhost:6379/0")
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Redis: Connection: Initialized")
+	database.Database, err = sql.Open("sqlite3", ":memory:")
 
-// 	rr := httptest.NewRecorder()
-// 	handler := http.HandlerFunc(CreateUser)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := database.Database.Exec(createUserTable); err != nil {
+		log.Println(err)
+	}
+	log.Println("db: Connection: Initialized")
+}
+func TestUserCreate(t *testing.T) {
+	db, err := sql.Open("sqlite3", ":memory")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-// 	handler.ServeHTTP(rr, req)
+	data, _ := json.Marshal(map[string]string{"nickname": "test", "email": "Test@test.ru", "password": "Test"})
+	buf := bytes.NewBuffer(data)
+	req, err := http.NewRequest("POST", "/user/create", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// expectedStatus := http.StatusCreated
-// if status := rr.Code; status != expectedStatus {
-// 	t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
-// 		status, expectedStatus)
-// }
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(CreateUser)
 
-// if rr.HeaderMap["Set-Cookies"] != nil {
-// 	t.Errorf("Cookie не были установлены после регистрации!")
-// }
-// }
+	handler.ServeHTTP(rr, req)
+
+	expectedStatus := http.StatusCreated
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+}
