@@ -3,7 +3,7 @@ package router
 import (
 	api "2019_1_qwerty/handlers"
 	"2019_1_qwerty/middlewares"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,7 +11,7 @@ import (
 
 //Start - router logic
 func Start(port string) error {
-	fmt.Println("Api running on port", port)
+	log.Println("Api running on port", port)
 
 	router := mux.NewRouter()
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))

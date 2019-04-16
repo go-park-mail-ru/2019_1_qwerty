@@ -1,36 +1,36 @@
 package handlers
 
 import (
-	"bytes"
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestUserCreate(t *testing.T) {
-	data, err := json.Marshal(map[string]string{"nickname": "test", "email": "Test@test.ru", "password": "Test"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	buf := bytes.NewBuffer(data)
-	req, err := http.NewRequest("POST", "/user/create", buf)
-	if err != nil {
-		t.Fatal(err)
-	}
+// func TestUserCreate(t *testing.T) {
+// 	// var err error
+// 	db, err := sql.Open("sqlite3", ":memory")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Close()
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateUser)
+// 	data, _ := json.Marshal(map[string]string{"nickname": "test", "email": "Test@test.ru", "password": "Test"})
+// 	buf := bytes.NewBuffer(data)
+// 	req, err := http.NewRequest("POST", "/user/create", buf)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	handler.ServeHTTP(rr, req)
+// 	rr := httptest.NewRecorder()
+// 	handler := http.HandlerFunc(CreateUser)
 
-	expectedStatus := http.StatusCreated
-	if status := rr.Code; status != expectedStatus {
-		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
-			status, expectedStatus)
-	}
+// 	handler.ServeHTTP(rr, req)
 
-	if rr.HeaderMap["Set-Cookies"] != nil {
-		t.Errorf("Cookie не были установлены после регистрации!")
-	}
-}
+// expectedStatus := http.StatusCreated
+// if status := rr.Code; status != expectedStatus {
+// 	t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+// 		status, expectedStatus)
+// }
+
+// if rr.HeaderMap["Set-Cookies"] != nil {
+// 	t.Errorf("Cookie не были установлены после регистрации!")
+// }
+// }

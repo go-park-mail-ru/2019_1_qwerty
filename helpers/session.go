@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/joho/godotenv"
 	uuid "github.com/satori/uuid"
 )
 
@@ -13,15 +12,14 @@ var (
 	c redis.Conn
 )
 
-func init() {
-	_ = godotenv.Load()
+func Open() error {
 	var err error
 	c, err = redis.DialURL(os.Getenv("REDIS_URL"))
 	if err != nil {
-		log.Println("Redis: ", err)
-		return
+		return err
 	}
 	log.Println("Redis: Connection: Initialized")
+	return nil
 }
 
 func CreateSession(user string) string {
