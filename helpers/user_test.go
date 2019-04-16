@@ -1,56 +1,57 @@
 package helpers
 
 import (
+	"2019_1_qwerty/database"
 	"2019_1_qwerty/models"
 	"database/sql"
-	"io/ioutil"
 	"log"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
+const createUserTable = `
+CREATE TABLE IF NOT EXISTS users (
+    nickname        CITEXT PRIMARY KEY,
+    email           CITEXT UNIQUE,
+    "password"  text,
+    avatar          TEXT DEFAULT 'default0.jpg'
+);`
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite3", "./test.db")
+	database.Database, err = sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
-
-	if query, err := ioutil.ReadFile("sql/create.sql"); err != nil {
+	if _, err := database.Database.Exec(createUserTable); err != nil {
 		log.Println(err)
-	} else {
-		if _, err := db.Exec(string(query)); err != nil {
-			log.Println(err)
-		}
 	}
 	log.Println("db: Connection: Initialized")
-
 }
 
 func TestUser(t *testing.T) {
-	// _ = godotenv.Load()
-	// if err := database.Open(); err != nil {
-	// 	log.Println(err.Error())
-	// }
-	// database.Close()
-	// rc = sqlite3_open("file::memory:", &db)
-
 	user := models.User{}
 	user.Nickname = "Nickname"
 	user.Password = "Password"
 	user.Email = "mail@mail.mail"
-	err := db.DBUserCreate(&user)
+	err := DBUserCreate(&user)
 	if err != nil {
 		t.Error("Не удалось создать пользователя", err)
 	}
-	user.Email = "mail@mail.mail"
+	err = DBUserCreate(&user)
+	if err == nil {
+		t.Error("Удалось создать пользователя с сущ. nickname/email", err)
+	}
+	user.Email = "m2345@6789mail2"
 	err = DBUserUpdate(user.Nickname, &user)
 	if err != nil {
 		t.Error("Не удалось обновить данные пользователя", err)
+	}
+	user.Avatar = "test.jpg"
+	err = DBUserUpdateAvatar(user.Nickname, user.Avatar)
+	if err != nil {
+		t.Error("Не удалось обновить аватар пользователя", err)
 	}
 	err = DBUserValidate(&user)
 	if err != nil {
@@ -58,11 +59,22 @@ func TestUser(t *testing.T) {
 	}
 	user.Password = "Password2"
 	err = DBUserValidate(&user)
-	if err != nil {
-		t.Error("НЕПРАВИЛЬНЫЕ данные пользователя прошли валидацию", err)
+	if err == nil {
+		t.Error("НЕПРАВИЛЬНЫЕ данные пароля пользователя прошли валидацию", err)
 	}
-	user2, _ := DBUserGet(user.Nickname)
-	if (user.Nickname != user2.Nickname) || (user.Email != user2.Email) {
-		t.Error("Данные на пользователя не совпадают", err)
+	user.Password = "Password2"
+	user.Nickname = user.Nickname + "test"
+	err = DBUserValidate(&user)
+	if err == nil {
+		t.Error("НЕПРАВИЛЬНЫЕ данные логина пользователя прошли валидацию", err)
+	}
+	user.Nickname = "Nickname"
+	_, err = DBUserGet(user.Nickname)
+	if err != nil {
+		t.Error("Сущ пользователь не найден", err)
+	}
+	_, err = DBUserGet(user.Nickname + "wlkfw")
+	if err == nil {
+		t.Error("Несущ пользователь найден", err)
 	}
 }
