@@ -98,15 +98,10 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := helpers.GetOwner(string(cookie.Value))
-	res, err := helpers.DBUserGet(user)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+	res, _ := helpers.DBUserGet(user)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	// helpers.ErroRouter(&w, res, err, http.StatusOK)
 }
 
 //UpdateAvatar - upload avatar to static folder
@@ -148,11 +143,7 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
+	_ = json.NewDecoder(r.Body).Decode(&user)
 	cookie, err := r.Cookie("sessionid")
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)

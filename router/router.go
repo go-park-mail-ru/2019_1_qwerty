@@ -17,7 +17,6 @@ func Start(port string) error {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
 	routerAPI := router.PathPrefix("/api").Subrouter()
-	routerAPI.HandleFunc("/version", api.Version).Methods("GET")
 	routerAPI.HandleFunc("/user/signup", api.CreateUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/create", api.CreateUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/login", api.LoginUser).Methods("POST", "OPTIONS")

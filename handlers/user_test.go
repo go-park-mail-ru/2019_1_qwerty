@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"2019_1_qwerty/database"
 	"2019_1_qwerty/helpers"
@@ -97,6 +98,137 @@ func TestUser(t *testing.T) {
 			status, expectedStatus)
 	}
 
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+
+	data, _ = json.Marshal(map[string]string{"nickname": "test", "password": "Test"})
+	buf = bytes.NewBuffer(data)
+	req, err = http.NewRequest("GET", "/user/check", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(CheckUserBySession)
+	handler.ServeHTTP(rr, req)
+
+	expectedStatus = http.StatusNotFound
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+
+	// COOKIE
+	cookie := &http.Cookie{
+		Name:     "sessionid",
+		Value:    "1234567890",
+		Expires:  time.Now().AddDate(0, 0, -1),
+		Path:     "/",
+		HttpOnly: true,
+	}
+	data, _ = json.Marshal(map[string]string{"nickname": "test", "password": "Test"})
+	buf = bytes.NewBuffer(data)
+	req, err = http.NewRequest("GET", "/user/check", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(CheckUserBySession)
+	req.AddCookie(cookie)
+	handler.ServeHTTP(rr, req)
+	expectedStatus = http.StatusNotFound
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+
+	cid := helpers.CreateSession("test")
+	cookie = &http.Cookie{
+		Name:     "sessionid",
+		Value:    cid,
+		Expires:  time.Now().AddDate(0, 0, -1),
+		Path:     "/",
+		HttpOnly: true,
+	}
+	data, _ = json.Marshal(map[string]string{"nickname": "test", "password": "Test"})
+	buf = bytes.NewBuffer(data)
+	req, err = http.NewRequest("GET", "/user/check", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(CheckUserBySession)
+	req.AddCookie(cookie)
+	handler.ServeHTTP(rr, req)
+	expectedStatus = http.StatusOK
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+
+	data, _ = json.Marshal(map[string]string{"nickname": "test", "password": "Test"})
+	buf = bytes.NewBuffer(data)
+	req, err = http.NewRequest("GET", "/user", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(GetProfileInfo)
+	req.AddCookie(cookie)
+	handler.ServeHTTP(rr, req)
+	expectedStatus = http.StatusOK
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+
+	data, _ = json.Marshal(map[string]string{"nickname": "test", "password": "Test"})
+	buf = bytes.NewBuffer(data)
+	req, err = http.NewRequest("POST", "/user/update", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(UpdateProfileInfo)
+	// req.AddCookie(cookie)
+	handler.ServeHTTP(rr, req)
+	expectedStatus = http.StatusNotFound
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+
+	data, _ = json.Marshal(map[string]string{"nickname": "test", "password": "Test"})
+	buf = bytes.NewBuffer(data)
+	req, err = http.NewRequest("POST", "/user/update", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(UpdateProfileInfo)
+	req.AddCookie(cookie)
+	handler.ServeHTTP(rr, req)
+	expectedStatus = http.StatusOK
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
 	if rr.HeaderMap["Set-Cookies"] != nil {
 		t.Errorf("Cookie не были установлены после регистрации!")
 	}
