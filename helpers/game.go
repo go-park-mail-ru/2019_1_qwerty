@@ -41,7 +41,7 @@ func (g *Game) AddPlayer(player *Player) {
 
 //Run - run game
 func (g *Game) Run() {
-	fmt.Println("main loop started")
+	// fmt.Println("main loop started")
 LOOP:
 	for {
 		player := <-g.register
