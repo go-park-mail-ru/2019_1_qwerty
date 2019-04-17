@@ -21,9 +21,10 @@ func init() {
 }
 
 //NewGame - creates new game
-func NewGame(maxRooms int) *Game {
+func NewGame(maxRooms uint) *Game {
 	return &Game{
 		register: make(chan *Player),
+		MaxRooms: maxRooms,
 	}
 }
 
@@ -40,7 +41,7 @@ func (g *Game) AddPlayer(player *Player) {
 
 //Run - run game
 func (g *Game) Run() {
-	fmt.Println("main loop started")
+	// fmt.Println("main loop started")
 LOOP:
 	for {
 		player := <-g.register

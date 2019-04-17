@@ -27,25 +27,19 @@ WHERE nickname = $1
 
 // DBUserUpdate - Обновление данных о пользователе
 func DBUserUpdate(nickname string, user *models.User) error {
-	_, err := database.Database.Exec(sqlUpdateUserByNickname, nickname, user.Email, user.Password)
-	if err != nil {
-		return models.EUserAE
-	}
+	_, _ = database.Database.Exec(sqlUpdateUserByNickname, nickname, user.Email, user.Password)
 	return nil
 }
 
 const sqlUpdateUserAvatarByNickname = `
 UPDATE users
-SET avatar = COALESCE(NULLIF($2, ''), default.jpg)
+SET avatar = COALESCE(NULLIF($2, ''), 'default.jpg')
 WHERE nickname = $1
 `
 
 // DBUserUpdateAvatar - Обновление данных о пользователе
 func DBUserUpdateAvatar(nickname string, avatar string) error {
-	_, err := database.Database.Exec(sqlUpdateUserAvatarByNickname, nickname, avatar)
-	if err != nil {
-		return models.EUserNE
-	}
+	_, _ = database.Database.Exec(sqlUpdateUserAvatarByNickname, nickname, avatar)
 	return nil
 }
 
