@@ -16,10 +16,7 @@ import (
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	_ = json.NewDecoder(r.Body).Decode(&user)
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusConflict)
@@ -32,20 +29,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-
 	w.WriteHeader(http.StatusCreated)
 }
 
 // LoginUser - авторизация
 func LoginUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	_ = json.NewDecoder(r.Body).Decode(&user)
 
-	err = helpers.DBUserValidate(&user)
+	err := helpers.DBUserValidate(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return

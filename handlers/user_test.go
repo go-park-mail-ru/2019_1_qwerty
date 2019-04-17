@@ -43,13 +43,7 @@ func init() {
 	}
 	log.Println("db: Connection: Initialized")
 }
-func TestUserCreate(t *testing.T) {
-	db, err := sql.Open("sqlite3", ":memory")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
+func TestUser(t *testing.T) {
 	data, _ := json.Marshal(map[string]string{"nickname": "test", "email": "Test@test.ru", "password": "Test"})
 	buf := bytes.NewBuffer(data)
 	req, err := http.NewRequest("POST", "/user/create", buf)
@@ -71,4 +65,40 @@ func TestUserCreate(t *testing.T) {
 	if rr.HeaderMap["Set-Cookies"] != nil {
 		t.Errorf("Cookie не были установлены после регистрации!")
 	}
+
+	req, err = http.NewRequest("GET", "/user/logout", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(LogoutUser)
+
+	handler.ServeHTTP(rr, req)
+
+	expectedStatus = http.StatusOK
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+
+	data, _ = json.Marshal(map[string]string{"nickname": "test", "password": "Test"})
+	buf = bytes.NewBuffer(data)
+	req, err = http.NewRequest("POST", "/user/login", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(LoginUser)
+	handler.ServeHTTP(rr, req)
+
+	expectedStatus = http.StatusOK
+	if status := rr.Code; status != expectedStatus {
+		t.Errorf("Неожиданный код ответа: получено %v, ожидалось %v",
+			status, expectedStatus)
+	}
+
+	if rr.HeaderMap["Set-Cookies"] != nil {
+		t.Errorf("Cookie не были установлены после регистрации!")
+	}
+
 }
