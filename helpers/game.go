@@ -21,9 +21,10 @@ func init() {
 }
 
 //NewGame - creates new game
-func NewGame(maxRooms int) *Game {
+func NewGame(maxRooms uint) *Game {
 	return &Game{
 		register: make(chan *Player),
+		MaxRooms: maxRooms,
 	}
 }
 
