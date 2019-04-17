@@ -11,5 +11,6 @@ func TestNewGame(t *testing.T) {
 	if game.MaxRooms != input {
 		t.Fatalf("got %d, expected %d", game.MaxRooms, input)
 	}
+	game.AddRoom(&Room{})
 
 }

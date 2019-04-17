@@ -14,5 +14,6 @@ func TestNewPlayer(t *testing.T) {
 	if player.ID != input {
 		t.Fatalf("got %s, expected %s", player.ID, input)
 	}
-
+	// player.SendMessage(&models.Logs{})
+	// player.Listen()
 }
