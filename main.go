@@ -15,16 +15,16 @@ func main() {
 	_ = godotenv.Load()
 
 	if err := database.Open(); err != nil {
-		log.Println(err.Error())
+		log.Fatal(err.Error())
 	}
 	defer database.Close()
 
 	if err := helpers.Open(); err != nil {
-		log.Println(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	err := router.Start(os.Getenv("PORT"))
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 }
