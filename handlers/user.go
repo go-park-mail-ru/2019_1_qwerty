@@ -15,7 +15,7 @@ import (
 
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
@@ -34,7 +34,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // LoginUser - авторизация
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
 	err := helpers.DBUserValidate(&user)
@@ -142,7 +142,7 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	cookie, err := r.Cookie("sessionid")
 	if err != nil {

@@ -73,7 +73,7 @@ WHERE nickname = $1
 
 // DBUserGet - Поиск пользователя по нику
 func DBUserGet(nickname string) (*models.User, error) {
-	var user models.User
+	user := models.User{}
 	row := database.Database.QueryRow(sqlSelectUserByNickname, nickname)
 	if err := row.Scan(&user.Nickname, &user.Email, &user.Avatar); err != nil {
 		return nil, err
