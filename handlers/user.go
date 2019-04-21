@@ -57,7 +57,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 //CheckUserBySession - user authorization status // Разобрать говно потом
 func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
 	if cookie, err := r.Cookie("sessionid"); err == nil {
-		if helpers.ValidateSession(string(cookie.Value)) != true {
+		if !helpers.ValidateSession(string(cookie.Value)) {
 			http.SetCookie(w, &http.Cookie{
 				Name:     "sessionid",
 				Value:    "",
