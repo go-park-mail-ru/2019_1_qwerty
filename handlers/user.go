@@ -83,7 +83,7 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
@@ -102,7 +102,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // LoginUser - авторизация
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
 	err := helpers.DBUserValidate(&user)
@@ -125,7 +125,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 //CheckUserBySession - user authorization status // Разобрать говно потом
 func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
 	if cookie, err := r.Cookie("sessionid"); err == nil {
-		if helpers.ValidateSession(string(cookie.Value)) != true {
+		if !helpers.ValidateSession(string(cookie.Value)) {
 			http.SetCookie(w, &http.Cookie{
 				Name:     "sessionid",
 				Value:    "",
@@ -183,7 +183,7 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	cookie, err := r.Cookie("sessionid")
 	if err != nil {
