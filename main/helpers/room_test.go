@@ -3,7 +3,7 @@ package helpers
 import "testing"
 
 func TestNewRoom(t *testing.T) {
-	input := uint(2)
+	input := 2
 	room := NewRoom(input)
 
 	if room.MaxPlayers != input {
