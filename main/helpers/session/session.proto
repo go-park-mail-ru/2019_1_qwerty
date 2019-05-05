@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+// protoc --go_out=plugins=grpc:. *.proto
+
+package session;
+
+message User {
+  string Nickname = 1;
+}
+
+message Session {
+  string ID = 1;
+}
+
+message Status {
+  bool Ok = 1;
+}
+
+// grpc-сервис проверки авторизации
+service AuthChecker {
+    rpc CreateSession(User) returns (Session) {}
+    rpc DestroySession(Session) returns (Status) {}
+    rpc ValidateSession(Session) returns (Status) {} 
+    rpc GetOwner(Session) returns (User) {}
+}
+

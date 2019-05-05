@@ -11,7 +11,7 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
-RUN go build -v
+RUN go build -o app
 
 FROM alpine
 LABEL maintainer="vekshin.roman@student.bmstu.ru"
@@ -23,6 +23,5 @@ RUN apk --no-cache add \
 
 WORKDIR /usr/local/bin
 
-COPY --from=builder /usr/src/app/2019_1_qwerty ./app
-COPY . .
+COPY --from=builder /usr/src/app/app ./app
 CMD ["./app"]
