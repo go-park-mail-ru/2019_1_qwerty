@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"2019_1_qwerty/models"
-	"fmt"
 
 	"github.com/gorilla/websocket"
 )
@@ -26,6 +25,21 @@ func NewPlayer(connection *websocket.Conn, id string) *Player {
 	}
 }
 
+func handleCoordinates(player *Player, message *models.Logs) {
+	tmp := player.room.state.Players[player.ID]
+	switch message.Head {
+	case "LEFT":
+		tmp.X = tmp.X - 1
+	case "RIGHT":
+		tmp.X = tmp.X + 1
+	case "UP":
+		tmp.Y = tmp.Y - 1
+	case "DOWN":
+		tmp.Y = tmp.Y + 1
+	}
+	player.room.state.Players[player.ID] = tmp
+}
+
 //Listen - listen info
 func (p *Player) Listen() {
 	go func() {
@@ -33,12 +47,14 @@ func (p *Player) Listen() {
 			message := &models.Logs{}
 			err := p.conn.ReadJSON(message)
 			if websocket.IsUnexpectedCloseError(err) {
-				p.room.RemovePlayer(p)
-				fmt.Println(p.ID, "disconnected from the server")
+				for _, player := range p.room.Players {
+					player.room.RemovePlayer(player)
+					//log.Println(player.ID, "disconnected from the server")
+				}
 				return
 			}
 			if err != nil {
-				fmt.Println("cant read json")
+				//log.Println("cant read json")
 				continue
 			}
 			p.in <- message
@@ -50,15 +66,15 @@ func (p *Player) Listen() {
 		case message := <-p.out:
 			p.conn.WriteJSON(message)
 		case message := <-p.in:
-			fmt.Println("income: ", message)
-
+			handleCoordinates(p, message)
 		}
 	}
 }
 
 //SendState - send info to front about player
 func (p *Player) SendState(state *RoomState) {
-	p.out <- &models.Logs{Head: "STATE", Content: state}
+	p.out <- &models.Logs{Head: "STATE", Content: state.Players}
+	p.out <- &models.Logs{Head: "OBJECTS", Content: state.Objects}
 }
 
 //SendMessage - send info to front about player

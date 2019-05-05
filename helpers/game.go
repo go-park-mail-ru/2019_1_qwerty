@@ -1,27 +1,26 @@
 package helpers
 
 import (
-	"fmt"
 	"sync"
 )
 
 //Game - main game struct
 type Game struct {
-	MaxRooms uint
+	MaxRooms int
 	mu       *sync.Mutex
 	rooms    []*Room
 	register chan *Player
 }
 
 //MainGame - main game
-var MainGame = NewGame(10)
+var MainGame = NewGame(10000)
 
 func init() {
 	go MainGame.Run()
 }
 
 //NewGame - creates new game
-func NewGame(maxRooms uint) *Game {
+func NewGame(maxRooms int) *Game {
 	return &Game{
 		register: make(chan *Player),
 		MaxRooms: maxRooms,
@@ -35,19 +34,19 @@ func (g *Game) AddRoom(room *Room) {
 
 //AddPlayer - add player to room
 func (g *Game) AddPlayer(player *Player) {
-	fmt.Println(player.ID, "queued to add")
+	//log.Println(player.ID, "queued to add")
 	g.register <- player
 }
 
 //Run - run game
 func (g *Game) Run() {
-	// fmt.Println("main loop started")
+
 LOOP:
 	for {
 		player := <-g.register
 
 		for _, room := range g.rooms {
-			if len(room.Players) < int(room.MaxPlayers) {
+			if len(room.Players) < room.MaxPlayers {
 				room.AddPlayer(player)
 				continue LOOP
 			}
