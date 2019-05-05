@@ -1,43 +1,72 @@
 package helpers
 
 import (
+	"context"
 	"log"
-	"os"
 
-	"github.com/gomodule/redigo/redis"
-	uuid "github.com/satori/uuid"
+	"2019_1_qwerty/helpers/session"
+
+	"google.golang.org/grpc"
 )
 
 var (
-	RedisConnect redis.Conn
+	grcpConn    *grpc.ClientConn
+	sessManager session.AuthCheckerClient
 )
 
 func Open() error {
 	var err error
-	RedisConnect, err = redis.DialURL(os.Getenv("REDIS_URL"))
+	grcpConn, err = grpc.Dial(
+		"backend_auth:8080",
+		grpc.WithInsecure(),
+	)
 	if err != nil {
 		return err
 	}
-	log.Println("Redis: Connection: Initialized")
+	sessManager = session.NewAuthCheckerClient(grcpConn)
 	return nil
 }
 
 func CreateSession(user string) string {
-	sessionID := (uuid.NewV4()).String()
-	_, _ = redis.String(RedisConnect.Do("SET", sessionID, user, "EX", 86400))
-	return sessionID
+	ctx := context.Background()
+	sessId, err := sessManager.CreateSession(ctx,
+		&session.User{
+			Nickname: user,
+		})
+	if err != nil {
+		log.Println(err)
+	}
+	return sessId.ID
 }
 
 func DestroySession(sessionID string) {
-	_, _ = RedisConnect.Do("DEL", sessionID)
+	ctx := context.Background()
+	sessManager.DestroySession(ctx,
+		&session.Session{
+			ID: sessionID,
+		})
 }
 
 func ValidateSession(sessionID string) bool {
-	_, err := redis.String(RedisConnect.Do("GET", sessionID))
-	return (err != redis.ErrNil)
+	ctx := context.Background()
+	status, err := sessManager.ValidateSession(ctx,
+		&session.Session{
+			ID: sessionID,
+		})
+	if err != nil {
+		log.Println(err)
+	}
+	return status.Ok
 }
 
 func GetOwner(sessionID string) string {
-	res, _ := redis.String(RedisConnect.Do("GET", sessionID))
-	return res
+	ctx := context.Background()
+	user, err := sessManager.GetOwner(ctx,
+		&session.Session{
+			ID: sessionID,
+		})
+	if err != nil {
+		log.Println(err)
+	}
+	return user.Nickname
 }
