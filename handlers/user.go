@@ -2,16 +2,84 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
-	"math/rand"
+	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
+	"strconv"
 	"time"
 
 	"2019_1_qwerty/helpers"
 	"2019_1_qwerty/models"
+
+	"github.com/joho/godotenv"
+	"github.com/minio/minio-go"
+	"github.com/satori/uuid"
 )
+
+var s3Client *minio.Client
+var endpoint string
+
+const bucketName = "qwertys3"
+
+func init() {
+	var err error
+	_ = godotenv.Load()
+	ssl, _ := strconv.ParseBool(os.Getenv("S3_SSL"))
+	location := os.Getenv("S3_LOCATION")
+	secretAccessKey := os.Getenv("S3_SECRETACCESSKEY")
+	accessKeyID := os.Getenv("S3_ACCESSKEYID")
+	endpoint = os.Getenv("S3_ENDPOINT")
+	s3Client, err = minio.New(endpoint, accessKeyID, secretAccessKey, ssl)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = s3Client.MakeBucket(bucketName, location)
+	if err != nil {
+		exists, err := s3Client.BucketExists(bucketName)
+		if err == nil && exists {
+			log.Printf("We already own %s bucket\n", bucketName)
+		} else {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Printf("Successfully created %s bucket\n", bucketName)
+	}
+}
+
+//UpdateAvatar - upload avatar to static folder
+func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(5 * 1024 * 1024)
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	cookie, err := r.Cookie("sessionid")
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	nickname := helpers.GetOwner(string(cookie.Value))
+
+	objectName := (uuid.NewV4()).String() + filepath.Ext(fileHeader.Filename)
+
+	_, err = s3Client.PutObject(bucketName, objectName, file, -1, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = helpers.DBUserUpdateAvatar(nickname, objectName)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
 
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -100,44 +168,17 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	user := helpers.GetOwner(string(cookie.Value))
 	res, _ := helpers.DBUserGet(user)
 
+	if res.Avatar != "" {
+		reqParams := make(url.Values)
+		reqParams.Set("response-content-disposition", "attachment; filename="+res.Avatar)
+		presignedURL, err := s3Client.PresignedGetObject(bucketName, res.Avatar, time.Second*24*60*60, reqParams)
+		if err != nil {
+			log.Println(err)
+		}
+		res.Avatar = presignedURL.String()
+	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-}
-
-//UpdateAvatar - upload avatar to static folder
-func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(5 * 1024 * 1024)
-	avatar, _, err := r.FormFile("file")
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	defer avatar.Close()
-
-	cookie, err := r.Cookie("sessionid")
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	nickname := helpers.GetOwner(string(cookie.Value))
-
-	generatedName := make([]byte, 8)
-	rand.Read(generatedName)
-	imageName := fmt.Sprintf("%x", generatedName)
-
-	path := imageName + ".png"
-
-	readyAvatar, _ := os.Create("./static/" + path)
-	defer readyAvatar.Close()
-	io.Copy(readyAvatar, avatar)
-
-	err = helpers.DBUserUpdateAvatar(nickname, path)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
 }
 
 //UpdateProfileInfo - updates player data

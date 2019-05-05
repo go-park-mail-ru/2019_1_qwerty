@@ -33,7 +33,7 @@ func DBUserUpdate(nickname string, user *models.User) error {
 
 const sqlUpdateUserAvatarByNickname = `
 UPDATE users
-SET avatar = COALESCE(NULLIF($2, ''), 'default.jpg')
+SET avatar = $2
 WHERE nickname = $1
 `
 
