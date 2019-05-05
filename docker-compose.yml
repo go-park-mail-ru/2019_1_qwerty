@@ -22,8 +22,18 @@ services:
       - "8080:8080"
     depends_on:
       - backend_postgres
-      - backend_redis
       - backend_s3
+      - backend_auth
+    restart: on-failure
+
+  backend_auth:
+    build: auth/.
+    container_name: backend_auth
+    environment:
+      - PORT=8080
+      - REDIS_URL=redis://redis@backend_redis:6379/0
+    depends_on:
+      - backend_redis
     restart: on-failure
 
   backend_postgres:
