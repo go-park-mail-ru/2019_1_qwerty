@@ -23,6 +23,6 @@ RUN apk --no-cache add \
 
 WORKDIR /usr/local/bin
 
+COPY sql/ sql/
 COPY --from=builder /usr/src/app/app ./app
-COPY . .
 CMD ["./app"]
