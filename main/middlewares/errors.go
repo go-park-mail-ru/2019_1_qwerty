@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -12,7 +11,7 @@ func ErrorMiddleware(handler http.Handler) http.Handler {
 			err := recover()
 
 			if err != nil {
-				fmt.Println("got panic on ", r.URL.Path, ". Info : ", err)
+				//log.Println(err)
 				http.Error(w, "Internal Server Error", 500)
 			}
 
