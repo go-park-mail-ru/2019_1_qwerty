@@ -1,0 +1,58 @@
+version: '3.5'
+
+services:
+  backend:
+    build: main/.
+    container_name: backend_main
+    environment:
+      - FRONTEND=https://front.kbobrovjr.now.sh,http://localhost:8000,https://front.brbrroman.ru
+      - PORT=8080
+      - POSTGRES_HOST=backend_postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - REDIS_URL=redis://redis@backend_redis:6379/0
+      - S3_ACCESSKEYID=S3ACCESSEXAMPLE
+      - S3_SECRETACCESSKEY=S3SECRETEXAMPLE
+      - S3_SSL=false
+      - S3_ENDPOINT=backend_s3:9000
+      - S3_LOCATION=eu-north-1
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend_postgres
+      - backend_s3
+      - backend_auth
+    restart: on-failure
+
+  backend_auth:
+    build: auth/.
+    container_name: backend_auth
+    environment:
+      - PORT=8080
+      - REDIS_URL=redis://redis@backend_redis:6379/0
+    depends_on:
+      - backend_redis
+    restart: on-failure
+
+  backend_postgres:
+    image: postgres:11-alpine
+    container_name: backend_postgres
+    restart: on-failure
+
+  backend_redis:
+    image: redis:5-alpine
+    container_name: backend_redis
+    restart: on-failure
+
+  backend_s3:
+    image: minio/minio
+    container_name: backend_s3
+    environment:
+      - MINIO_ACCESS_KEY=S3ACCESSEXAMPLE
+      - MINIO_SECRET_KEY=S3SECRETEXAMPLE
+      - MINIO_DOMAIN=s3.brbrroman.ru
+    command: server /data
+    restart: on-failure
+
