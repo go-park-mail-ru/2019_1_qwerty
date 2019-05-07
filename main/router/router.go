@@ -14,8 +14,6 @@ func Start(port string) error {
 	log.Println("Api running on port", port)
 
 	router := mux.NewRouter()
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
-
 	routerAPI := router.PathPrefix("/api").Subrouter()
 	routerAPI.HandleFunc("/user/signup", api.CreateUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/create", api.CreateUser).Methods("POST", "OPTIONS")
