@@ -1,6 +1,24 @@
 version: '3.5'
 
 services:
+  proxy:
+    image: nginx
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      #- ./etc/nginx/conf.d/git-http.conf:/etc/nginx/conf.d/git-http.conf:ro"
+      - ./log/nginx:/var/log/nginx
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+    environment:
+      - NGINX_SERVERNAME="brbrroman.ru"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+      - backend_s3
+    restart: on-failure
+
   backend:
     build: main/.
     container_name: backend_main
@@ -53,6 +71,7 @@ services:
       - MINIO_ACCESS_KEY=S3ACCESSEXAMPLE
       - MINIO_SECRET_KEY=S3SECRETEXAMPLE
       - MINIO_DOMAIN=s3.brbrroman.ru
+      - MINIO_BROWSER=off
     command: server /data
     restart: on-failure
 
