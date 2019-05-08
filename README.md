@@ -1,5 +1,5 @@
 [![Go Report](https://goreportcard.com/badge/github.com/go-park-mail-ru/2019_1_qwerty)](https://goreportcard.com/report/github.com/go-park-mail-ru/2019_1_qwerty)
-[![Build Status](https://drone.brbrroman.ru/api/badges/BrBrRoman/2019_1_qwerty/status.svg?ref=/refs/heads/master)](https://drone.brbrroman.ru/BrBrRoman/2019_1_qwerty)
+[![Build Status](https://cloud.drone.io/api/badges/go-park-mail-ru/2019_1_qwerty/status.svg)](https://cloud.drone.io/go-park-mail-ru/2019_1_qwerty)
 [![GoDoc](https://godoc.org/github.com/go-park-mail-ru/2019_1_qwerty?status.svg)](https://godoc.org/github.com/go-park-mail-ru/2019_1_qwerty)
 
 # 2019_1_qwerty

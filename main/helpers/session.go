@@ -27,6 +27,7 @@ func Open() error {
 	return nil
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func CreateSession(user string) string {
 	ctx := context.Background()
 	sessId, err := sessManager.CreateSession(ctx,
@@ -39,6 +40,7 @@ func CreateSession(user string) string {
 	return sessId.ID
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func DestroySession(sessionID string) {
 	ctx := context.Background()
 	sessManager.DestroySession(ctx,
@@ -47,6 +49,7 @@ func DestroySession(sessionID string) {
 		})
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func ValidateSession(sessionID string) bool {
 	ctx := context.Background()
 	status, err := sessManager.ValidateSession(ctx,
@@ -59,6 +62,7 @@ func ValidateSession(sessionID string) bool {
 	return status.Ok
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func GetOwner(sessionID string) string {
 	ctx := context.Background()
 	user, err := sessManager.GetOwner(ctx,

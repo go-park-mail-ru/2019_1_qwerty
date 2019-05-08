@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+// protoc --go_out=plugins=grpc:. *.proto
+
+package auth;
+
+message User {
+  string Nickname = 1;
+  string Password = 2;
+}
+
+message Status {
+  bool Ok = 1;
+}
+
+// grpc-сервис проверки авторизации
+service AuthChecker {
+    rpc LoginUser(User) returns (Status) {}
+}
+

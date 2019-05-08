@@ -18,7 +18,6 @@ func main() {
 		log.Fatal(err.Error())
 	}
 	defer database.Close()
-
 	if err := helpers.Open(); err != nil {
 		log.Fatal(err.Error())
 	}
