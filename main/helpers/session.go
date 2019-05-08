@@ -14,19 +14,19 @@ var (
 	sessManager session.AuthCheckerClient
 )
 
-func Open() error {
+func Init() {
 	var err error
 	grcpConn, err = grpc.Dial(
 		"backend_auth:8080",
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		return err
+		log.Fatalln(err)
 	}
 	sessManager = session.NewAuthCheckerClient(grcpConn)
-	return nil
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func CreateSession(user string) string {
 	ctx := context.Background()
 	sessId, err := sessManager.CreateSession(ctx,
@@ -39,6 +39,7 @@ func CreateSession(user string) string {
 	return sessId.ID
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func DestroySession(sessionID string) {
 	ctx := context.Background()
 	sessManager.DestroySession(ctx,
@@ -47,6 +48,7 @@ func DestroySession(sessionID string) {
 		})
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func ValidateSession(sessionID string) bool {
 	ctx := context.Background()
 	status, err := sessManager.ValidateSession(ctx,
@@ -59,6 +61,7 @@ func ValidateSession(sessionID string) bool {
 	return status.Ok
 }
 
+// бестолковая обёртка над удалённой функцией из-за соединения
 func GetOwner(sessionID string) string {
 	ctx := context.Background()
 	user, err := sessManager.GetOwner(ctx,
