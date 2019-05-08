@@ -7,7 +7,18 @@ import (
 	"strconv"
 
 	"2019_1_qwerty/models"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
+
+var FooCount = prometheus.NewCounter(prometheus.CounterOpts{
+	Name: "foo_total",
+	Help: "Number of foo successfully processed.",
+})
+
+var Hits = prometheus.NewCounterVec(prometheus.CounterOpts{
+	Name: "hits",
+}, []string{"status", "path"})
 
 func init() {
 	models.Scores = []models.Score{}
@@ -26,6 +37,8 @@ func GetNextAfter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if offset < 0 {
+		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
+		FooCount.Add(1)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -37,11 +50,15 @@ func GetNextAfter(w http.ResponseWriter, r *http.Request) {
 	} else if offset < len(models.Scores) {
 		answ = models.Scores[offset:]
 	} else {
+		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
+		FooCount.Add(1)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	json.NewEncoder(w).Encode(answ)
+	Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
+	FooCount.Add(1)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -55,5 +72,7 @@ func CreateScore(w http.ResponseWriter, r *http.Request) {
 	}
 
 	models.Scores = append(models.Scores, models.Score{Place: uint64(rand.Intn(100)), Name: name, Points: uint64(points)})
+	Hits.WithLabelValues(string(http.StatusCreated), r.URL.String()).Inc()
+	FooCount.Add(1)
 	w.WriteHeader(http.StatusCreated)
 }

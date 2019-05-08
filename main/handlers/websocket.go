@@ -14,6 +14,8 @@ func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		//log.Println("no auth!")
+		Hits.WithLabelValues(string(401), r.URL.String()).Inc()
+		FooCount.Add(1)
 		w.WriteHeader(401)
 		return
 	}
@@ -21,6 +23,8 @@ func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, http.Header{"Upgrade": []string{"websocket"}})
 
 	if err != nil {
+		Hits.WithLabelValues(string(500), r.URL.String()).Inc()
+		FooCount.Add(1)
 		//log.Println("got error while connecting", err)
 		w.WriteHeader(500)
 		return
