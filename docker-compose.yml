@@ -54,6 +54,20 @@ services:
       - backend_redis
     restart: on-failure
 
+  backend_auth2:
+    build: auth2/.
+    container_name: backend_auth2
+    environment:
+      - PORT=8080
+      - POSTGRES_HOST=backend_postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - backend_postgres
+    restart: on-failure
+
   backend_postgres:
     image: postgres:11-alpine
     container_name: backend_postgres
