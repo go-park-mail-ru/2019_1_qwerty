@@ -87,8 +87,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	err := helpers.DBUserCreate(&user)
 	if err != nil {
-		w.WriteHeader(http.StatusConflict)
-		return
+		// Если логин и пароль совпадут, то пользователь будет залогинен, а не зареган
+		if !helpers.LoginUser(user.Nickname, user.Password) {
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
 	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
@@ -105,8 +108,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
-	err := helpers.DBUserValidate(&user)
-	if err != nil {
+	if !helpers.LoginUser(user.Nickname, user.Password) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

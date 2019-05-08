@@ -14,16 +14,17 @@ var (
 	sessManager session.AuthCheckerClient
 )
 
-func Init() {
+func Open() error {
 	var err error
 	grcpConn, err = grpc.Dial(
 		"backend_auth:8080",
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 	sessManager = session.NewAuthCheckerClient(grcpConn)
+	return nil
 }
 
 // бестолковая обёртка над удалённой функцией из-за соединения
