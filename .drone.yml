@@ -101,6 +101,8 @@ steps:
     script:
     - cd deploy
     - docker-compose up -d --no-deps --build
+    - tree
+    - ls -la
     - echo "script ok"
 #   when:
 #     branch:
