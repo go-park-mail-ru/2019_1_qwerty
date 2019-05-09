@@ -82,9 +82,9 @@ steps:
     - docker-compose.yml
     - prometheus.yml
     script:
-    - cd deploy
-    - docker-compose up -d --no-deps --build
-    
+      - cd deploy
+      - docker-compose up -d --no-deps --build
+      - echo "script ok"
     
 # - name: launch
 #   image: appleboy/drone-ssh
