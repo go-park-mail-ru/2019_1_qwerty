@@ -57,7 +57,7 @@ steps:
 #   when:
 #     status: success
 
-- name: deploy
+- name: delivery
   image: appleboy/drone-scp
   settings:
     key:
@@ -80,22 +80,27 @@ steps:
     - auth2/Dockerfile
     - nginx/*
     - docker-compose.yml
-    
-- name: launch
-  image: appleboy/drone-ssh
-  settings:
-    key:
-      from_secret: ssh_key
-    host: 
-      from_secret: host
-    username:
-      from_secret: username
-    port: 
-      from_secret: port
-    command_timeout: 3m
+    - prometheus.yml
     script:
-      - cd deploy
-      - docker-compose up -d --no-deps --build
+    - cd deploy
+    - docker-compose up -d --no-deps --build
+    
+    
+# - name: launch
+#   image: appleboy/drone-ssh
+#   settings:
+#     key:
+#       from_secret: ssh_key
+#     host: 
+#       from_secret: host
+#     username:
+#       from_secret: username
+#     port: 
+#       from_secret: port
+#     command_timeout: 3m
+#     script:
+#       - cd deploy
+#       - docker-compose up -d --no-deps --build
 #   when:
 #     branch:
 #     - master
