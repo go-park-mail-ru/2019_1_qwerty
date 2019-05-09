@@ -70,8 +70,8 @@ steps:
       from_secret: port
     command_timeout: 3m
     target: ~/deploy
-      source:
-        - main/2019_1_qwerty
+    source:
+    - main/2019_1_qwerty
     
 # - name: deploy
 #   image: appleboy/drone-ssh
