@@ -81,23 +81,22 @@ steps:
     - nginx/*
     - docker-compose.yml
     
-# - name: deploy
-#   image: appleboy/drone-ssh
-#   settings:
-#     key:
-#       from_secret: ssh_key
-#     host: 
-#       from_secret: host
-#     username:
-#       from_secret: username
-#     port: 
-#       from_secret: port
-#     command_timeout: 3m
-#     script:
-#       - cd deploy
-#       - rm -rf backend
-#       - git clone https://github.com/go-park-mail-ru/2019_1_qwerty.git backend
-#       - docker-compose up -d --no-deps --build
+- name: deploy
+  image: appleboy/drone-ssh
+  settings:
+    key:
+      from_secret: ssh_key
+    host: 
+      from_secret: host
+    username:
+      from_secret: username
+    port: 
+      from_secret: port
+    command_timeout: 3m
+    script:
+      - cd deploy
+      - rm -rf backend
+      - docker-compose up -d --no-deps --build
 #   when:
 #     branch:
 #     - master
