@@ -10,16 +10,35 @@ workspace:
   path: src/github.com/go-park-mail-ru/2019_1_qwerty
 
 steps:
-- name: build
+- name: build_main
   image: golang:1.12-alpine
   commands:
+  - cd main/
   - export GO111MODULE=on
   - export PATH=$PATH:/go
   - apk add git build-base
   - go build
   - go test ./...
-kind: pipeline
-name: default
+  
+- name: build_auth
+  image: golang:1.12-alpine
+  commands:
+  - cd auth/
+  - export GO111MODULE=on
+  - export PATH=$PATH:/go
+  - apk add git build-base
+  - go build
+  - go test ./...
+
+- name: build_auth2
+  image: golang:1.12-alpine
+  commands:
+  - cd auth2/
+  - export GO111MODULE=on
+  - export PATH=$PATH:/go
+  - apk add git build-base
+  - go build
+  - go test ./...
 
 # - name: notify
 #   image: appleboy/drone-telegram
@@ -37,23 +56,23 @@ name: default
 #   when:
 #     status: success
     
-- name: deploy
-  image: appleboy/drone-ssh
-  settings:
-    key:
-      from_secret: ssh_key
-    host: 
-      from_secret: host
-    username:
-      from_secret: username
-    port: 
-      from_secret: port
-    command_timeout: 3m
-    script:
-      - cd server/server3
-      - rm -rf backend
-      - git clone https://github.com/go-park-mail-ru/2019_1_qwerty.git backend
-      - docker-compose up -d --no-deps --build
-  when:
-    branch:
-    - master
+# - name: deploy
+#   image: appleboy/drone-ssh
+#   settings:
+#     key:
+#       from_secret: ssh_key
+#     host: 
+#       from_secret: host
+#     username:
+#       from_secret: username
+#     port: 
+#       from_secret: port
+#     command_timeout: 3m
+#     script:
+#       - cd server/server3
+#       - rm -rf backend
+#       - git clone https://github.com/go-park-mail-ru/2019_1_qwerty.git backend
+#       - docker-compose up -d --no-deps --build
+#   when:
+#     branch:
+#     - master
