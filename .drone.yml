@@ -38,13 +38,8 @@ steps:
   - export PATH=$PATH:/go
   - apk add git build-base
   - go build
+  - ls -la
   
-- name: deployment
-  image: ubuntu:18:04
-  commands:
-  - apt update
-  - apt install -y tree
-  - tree .
 
 # - name: notify
 #   image: appleboy/drone-telegram
