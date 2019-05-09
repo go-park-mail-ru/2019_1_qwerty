@@ -18,7 +18,7 @@ steps:
   - export PATH=$PATH:/go
   - apk add git build-base
   - go build
-  - go test ./...
+#   - go test ./...
   
 - name: build_auth
   image: golang:1.12-alpine
@@ -28,7 +28,7 @@ steps:
   - export PATH=$PATH:/go
   - apk add git build-base
   - go build
-  - go test ./...
+#   - go test ./...
 
 - name: build_auth2
   image: golang:1.12-alpine
@@ -38,7 +38,7 @@ steps:
   - export PATH=$PATH:/go
   - apk add git build-base
   - go build
-  - go test ./...
+#   - go test ./...
 
 # - name: notify
 #   image: appleboy/drone-telegram
