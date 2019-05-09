@@ -81,7 +81,7 @@ steps:
     - nginx/*
     - docker-compose.yml
     
-- name: deploy
+- name: launch
   image: appleboy/drone-ssh
   settings:
     key:
@@ -95,7 +95,6 @@ steps:
     command_timeout: 3m
     script:
       - cd deploy
-      - rm -rf backend
       - docker-compose up -d --no-deps --build
 #   when:
 #     branch:
