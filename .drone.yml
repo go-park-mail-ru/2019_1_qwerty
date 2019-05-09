@@ -73,9 +73,13 @@ steps:
     source:
     - main/2019_1_qwerty
     - main/sql/*.sql
+    - main/Dockerfile
     - auth/auth
+    - auth/Dockerfile
     - auth2/auth2
+    - auth2/Dockerfile
     - nginx/*
+    - docker-compose.yml
     
 # - name: deploy
 #   image: appleboy/drone-ssh
