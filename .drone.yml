@@ -72,6 +72,10 @@ steps:
     target: ~/deploy
     source:
     - main/2019_1_qwerty
+    - main/sql/*.sql
+    - auth/auth
+    - auth2/auth2
+    - nginx/*
     
 # - name: deploy
 #   image: appleboy/drone-ssh
