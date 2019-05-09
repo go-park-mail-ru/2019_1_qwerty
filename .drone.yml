@@ -82,25 +82,26 @@ steps:
     - docker-compose.yml
     - prometheus.yml
     script:
-      - cd deploy
-      - docker-compose up -d --no-deps --build
-      - echo "script ok"
+    - cd deploy
+    - docker-compose up -d --no-deps --build
+    - echo "script ok"
     
-# - name: launch
-#   image: appleboy/drone-ssh
-#   settings:
-#     key:
-#       from_secret: ssh_key
-#     host: 
-#       from_secret: host
-#     username:
-#       from_secret: username
-#     port: 
-#       from_secret: port
-#     command_timeout: 3m
-#     script:
-#       - cd deploy
-#       - docker-compose up -d --no-deps --build
+- name: launch
+  image: appleboy/drone-ssh
+  settings:
+    key:
+      from_secret: ssh_key
+    host: 
+      from_secret: host
+    username:
+      from_secret: username
+    port: 
+      from_secret: port
+    command_timeout: 3m
+    script:
+    - cd deploy
+    - docker-compose up -d --no-deps --build
+    - echo "script ok"
 #   when:
 #     branch:
 #     - master
