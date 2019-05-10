@@ -1,17 +1,17 @@
-FROM golang:1.12-alpine AS builder
+# FROM golang:1.12-alpine AS builder
 
-RUN apk add --no-cache \
-    build-base \
-    git
+# RUN apk add --no-cache \
+#     build-base \
+#     git
 
-WORKDIR /usr/src/app
+# WORKDIR /usr/src/app
 
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
+# COPY go.mod .
+# COPY go.sum .
+# RUN go mod download
 
-COPY . .
-RUN go build -o app
+# COPY . .
+# RUN go build -o app
 
 FROM alpine
 LABEL maintainer="vekshin.roman@student.bmstu.ru"
@@ -24,5 +24,6 @@ RUN apk --no-cache add \
 WORKDIR /usr/local/bin
 
 COPY sql/ sql/
-COPY --from=builder /usr/src/app/app ./app
-CMD ["./app"]
+# COPY --from=builder /usr/src/app/app ./app
+COPY 2019_1_qwerty .
+CMD ["./2019_1_qwerty"]
