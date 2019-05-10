@@ -100,10 +100,8 @@ steps:
     command_timeout: 3m
     script:
     - cd deploy
+    - uname -a
     - docker-compose up -d --no-deps --build
-    - tree
-    - ls -la
-    - echo "script ok"
 #   when:
 #     branch:
 #     - master
