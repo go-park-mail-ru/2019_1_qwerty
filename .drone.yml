@@ -101,6 +101,7 @@ steps:
     script:
     - cd deploy
     - uname -a
+    - docker images
     - docker-compose up -d --no-deps --build
 #   when:
 #     branch:
