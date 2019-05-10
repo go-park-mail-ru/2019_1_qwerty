@@ -39,23 +39,6 @@ steps:
   - apk add git build-base
   - go build
 #   - ls -la
-  
-
-# - name: notify
-#   image: appleboy/drone-telegram
-#   settings:
-#     token: 
-#       from_secret: tg_tocken
-#     to:
-#       from_secret: tg_user
-#     message: >
-#       {{#success build.status}}
-#         build {{build.number}} succeeded. Good job.
-#       {{else}}
-#         build {{build.number}} failed. Fix me please.
-#       {{/success}}
-#   when:
-#     status: success
 
 - name: delivery
   image: appleboy/drone-scp
@@ -81,6 +64,9 @@ steps:
     - nginx/*
     - docker-compose.yml
     - prometheus.yml
+    when:
+      branch:
+      - master
     
 - name: launch
   image: appleboy/drone-ssh
@@ -97,6 +83,22 @@ steps:
     script:
     - cd deploy
     - /snap/bin/docker-compose up -d --no-deps --build
+    when:
+      branch:
+      - master
+      
+# - name: notify
+#   image: appleboy/drone-telegram
+#   settings:
+#     token: 
+#       from_secret: tg_tocken
+#     to:
+#       from_secret: tg_user
+#     message: >
+#       {{#success build.status}}
+#         build {{build.number}} succeeded. Good job.
+#       {{else}}
+#         build {{build.number}} failed. Fix me please.
+#       {{/success}}
 #   when:
-#     branch:
-#     - master
+#     status: success
