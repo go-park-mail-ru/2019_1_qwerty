@@ -96,7 +96,7 @@ steps:
     command_timeout: 3m
     script:
     - cd deploy
-    - /usr/local/bin/docker-compose up -d --no-deps --build
+    - /snap/bin/docker-compose up -d --no-deps --build
 #   when:
 #     branch:
 #     - master
