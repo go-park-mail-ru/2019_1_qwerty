@@ -67,6 +67,8 @@ steps:
   when:
     branch:
     - master
+    event:
+    - push
     
 - name: launch
   image: appleboy/drone-ssh
@@ -86,6 +88,8 @@ steps:
   when:
     branch:
     - master
+    event:
+    - push
       
 # - name: notify
 #   image: appleboy/drone-telegram
