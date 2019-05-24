@@ -117,8 +117,10 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // LoginUser - авторизация
 func LoginUser(w http.ResponseWriter, r *http.Request) {
+	log.Println("Start LoginUser")
 	user := models.User{}
 	_ = json.NewDecoder(r.Body).Decode(&user)
+	log.Println("LoginUser from json ok")
 
 	if !helpers.LoginUser(user.Nickname, user.Password) {
 		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
@@ -126,6 +128,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	log.Println("login_pass valid")
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
@@ -134,9 +137,11 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
+	log.Println("session ok")
 	Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
 	FooCount.Add(1)
 	w.WriteHeader(http.StatusOK)
+	log.Println("login secs returned")
 }
 
 //CheckUserBySession - user authorization status // Разобрать говно потом
