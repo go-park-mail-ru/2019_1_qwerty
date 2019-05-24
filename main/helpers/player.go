@@ -47,8 +47,10 @@ func (p *Player) Listen() {
 		for {
 			message := &models.Logs{}
 			err := p.conn.ReadJSON(message)
-			log.Println(err)
+			log.Println("err after readjson", err)
+			log.Println("player is", p)
 			if websocket.IsUnexpectedCloseError(err) {
+				log.Println(p)
 				p.room.RemovePlayer(p)
 				//for _, player := range p.room.Players {
 				log.Println(p.ID, "disconnected from the server")
