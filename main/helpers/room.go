@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"2019_1_qwerty/models"
+	"log"
 	"math"
 	"math/rand"
 	"sync"
@@ -98,20 +99,20 @@ func CreateObject(r *Room) []ObjectState {
 
 //Run - runs rooms
 func (r *Room) Run() {
-	//log.Println("room loop started")
+	log.Println("room loop started")
 	for {
 		select {
 		case <-r.unregister:
 			for _, p := range r.Players {
 				delete(r.Players, p.ID)
-				//log.Println(p.ID, "disconnected from the room")
+				log.Println(p.ID, "disconnected from the room")
 				p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 			}
 			return
 
 		case player := <-r.register:
 			r.Players[player.ID] = player
-			//log.Println(player.ID, "joined the room")
+			log.Println(player.ID, "joined the room")
 			player.SendMessage(&models.Logs{Head: "CONNECTED", Content: nil})
 
 			if len(r.Players) == r.MaxPlayers {
@@ -148,7 +149,7 @@ func (r *Room) Run() {
 								for _, p := range r.Players {
 									p.SendState(r.state)
 									delete(r.Players, p.ID)
-									//log.Println(p.ID, "disconnected from the room")
+									log.Println(p.ID, "disconnected from the room")
 									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 								}
 								return
