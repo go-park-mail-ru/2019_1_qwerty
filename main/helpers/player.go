@@ -49,10 +49,12 @@ func (p *Player) Listen() {
 			err := p.conn.ReadJSON(message)
 			log.Println(err)
 			if websocket.IsUnexpectedCloseError(err) {
-				for _, player := range p.room.Players {
-					log.Println(player.ID, "disconnected from the server")
-					player.room.RemovePlayer(player)
-				}
+				p.room.RemovePlayer(p)
+				//for _, player := range p.room.Players {
+				log.Println(p.ID, "disconnected from the server")
+				//player.room.RemovePlayer(player)
+				//}
+
 				return
 			}
 			if err != nil {
