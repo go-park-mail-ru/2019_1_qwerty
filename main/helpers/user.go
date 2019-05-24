@@ -3,6 +3,7 @@ package helpers
 import (
 	"2019_1_qwerty/database"
 	"2019_1_qwerty/models"
+	"log"
 )
 
 const sqlInsertUser = `
