@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"2019_1_qwerty/helpers"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -13,7 +14,7 @@ func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("sessionid")
 
 	if err != nil {
-		//log.Println("no auth!")
+		log.Println("no auth!")
 		Hits.WithLabelValues(string(401), r.URL.String()).Inc()
 		FooCount.Add(1)
 		w.WriteHeader(401)
@@ -25,12 +26,12 @@ func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Hits.WithLabelValues(string(500), r.URL.String()).Inc()
 		FooCount.Add(1)
-		//log.Println("got error while connecting", err)
+		log.Println("got error while connecting", err)
 		w.WriteHeader(500)
 		return
 	}
 
-	//log.Println("connected!")
+	log.Println("connected!")
 
 	player := helpers.NewPlayer(conn, cookie.Value)
 	go player.Listen()
