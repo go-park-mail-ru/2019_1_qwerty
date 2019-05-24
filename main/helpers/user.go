@@ -3,6 +3,7 @@ package helpers
 import (
 	"2019_1_qwerty/database"
 	"2019_1_qwerty/models"
+	"log"
 )
 
 const sqlInsertUser = `
@@ -14,6 +15,7 @@ VALUES ($1, $2, $3)
 func DBUserCreate(user *models.User) error {
 	_, err := database.Database.Exec(sqlInsertUser, user.Nickname, user.Email, user.Password)
 	if err != nil {
+		log.Println(err)
 		return models.EUserAE
 	}
 	return nil
@@ -54,6 +56,7 @@ func DBUserValidate(user *models.User) error {
 	var dbPassw string
 	row := database.Database.QueryRow(sqlSelectUserPasswordByNickname, user.Nickname)
 	if err := row.Scan(&dbPassw); err != nil {
+		log.Println(err)
 		return models.EUserNE
 	}
 
@@ -76,6 +79,7 @@ func DBUserGet(nickname string) (*models.User, error) {
 	user := models.User{}
 	row := database.Database.QueryRow(sqlSelectUserByNickname, nickname)
 	if err := row.Scan(&user.Nickname, &user.Email, &user.Avatar); err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	return &user, nil
