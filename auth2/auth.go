@@ -71,6 +71,7 @@ func (sm *SessionManager) LoginUser(ctx context.Context, in *auth.User) (*auth.S
 	var dbPassw string
 	row := Database.QueryRow(sqlSelectUserPasswordByNickname, in.Nickname)
 	if err := row.Scan(&dbPassw); err != nil {
+		log.Println(err)
 		return &auth.Status{Ok: false}, nil
 	}
 
