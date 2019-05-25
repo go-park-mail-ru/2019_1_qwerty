@@ -15,7 +15,7 @@ func CORSMiddleware(handler http.Handler) http.Handler {
 		for _, v := range origins {
 
 			if origin == v {
-				w.Header().Set("Access-Control-Allow-Origin", "*")
+				w.Header().Set("Access-Control-Allow-Origin", origin)
 			}
 
 		}
