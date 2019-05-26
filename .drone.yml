@@ -11,7 +11,6 @@ workspace:
 
 steps:
 - name: build_main
-  group: build
   image: golang:1.12-stretch
   commands:
   - cd main/
@@ -21,7 +20,6 @@ steps:
 #   - go test ./...
   
 - name: build_auth
-  group: build
   image: golang:1.12-stretch
   commands:
   - cd auth/
@@ -31,7 +29,6 @@ steps:
 #   - go test ./...
 
 - name: build_auth2
-  group: build
   image: golang:1.12-stretch
   commands:
   - cd auth2/
