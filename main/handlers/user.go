@@ -151,6 +151,7 @@ func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
 //LogoutUser - deauthorization // Разобрать говно потом
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
 	if cookie, err := r.Cookie("sessionid"); err == nil {
+		helpers.DestroySession(string(cookie.Value))
 		http.SetCookie(w, &http.Cookie{
 			Name:     "sessionid",
 			Value:    "",
@@ -158,7 +159,6 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			HttpOnly: true,
 		})
-		helpers.DestroySession(string(cookie.Value))
 	}
 	ErrorMux(&w, r, http.StatusOK)
 }
