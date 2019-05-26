@@ -13,12 +13,12 @@
 # COPY . .
 # RUN go build -o app
 
-FROM alpine
+FROM ubuntu
 LABEL maintainer="vekshin.roman@student.bmstu.ru"
 
 EXPOSE $PORT
 
-RUN apk --no-cache add \
+RUN apt update && apt install -y \
     ca-certificates
 
 WORKDIR /usr/local/bin
