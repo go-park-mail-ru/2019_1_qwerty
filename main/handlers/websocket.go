@@ -10,9 +10,9 @@ import (
 //WebsocketConn - upgrade to websocket
 func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 	val, _ := r.URL.Query()["nickname"]
-	cookie, err := helpers.GetID(val[0])
+	cookie, _ := helpers.GetID(val[0])
 
-	if err != nil {
+	if cookie == "" {
 		log.Println("no auth!")
 		ErrorMux(&w, r, http.StatusUnauthorized)
 		return
