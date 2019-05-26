@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"2019_1_qwerty/models"
-	"log"
 	"math"
 	"math/rand"
 	"sync"
@@ -58,7 +57,6 @@ func NewRoom(maxPlayers int) *Room {
 
 //AddPlayer - add player to slice of players
 func (r *Room) AddPlayer(player *Player) {
-	player.room = r
 	r.register <- player
 }
 
@@ -99,20 +97,22 @@ func CreateObject(r *Room) []ObjectState {
 
 //Run - runs rooms
 func (r *Room) Run() {
-	log.Println("room loop started")
 	for {
 		select {
 		case <-r.unregister:
+			r.mu.Lock()
 			for _, p := range r.Players {
 				delete(r.Players, p.ID)
-				log.Println(p.ID, "disconnected from the room")
 				p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 			}
+			r.mu.Unlock()
 			return
 
 		case player := <-r.register:
+			r.mu.Lock()
 			r.Players[player.ID] = player
-			log.Println(player.ID, "joined the room")
+			player.room = r
+			r.mu.Unlock()
 			player.SendMessage(&models.Logs{Head: "CONNECTED", Content: nil})
 
 			if len(r.Players) == r.MaxPlayers {
@@ -148,15 +148,15 @@ func (r *Room) Run() {
 								r.state.Objects = append(r.state.Objects, object)
 								for _, p := range r.Players {
 									p.SendState(r.state)
+									r.mu.Lock()
 									delete(r.Players, p.ID)
-									log.Println(p.ID, "disconnected from the room")
+									r.mu.Unlock()
 									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 								}
 								return
 							}
 
 						}
-
 						r.state.Objects = append(r.state.Objects, object)
 					}
 

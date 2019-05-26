@@ -11,32 +11,29 @@ workspace:
 
 steps:
 - name: build_main
-  image: golang:1.12-alpine
+  image: golang:1.12-stretch
   commands:
   - cd main/
   - export GO111MODULE=on
   - export PATH=$PATH:/go
-  - apk add git build-base
   - go build
 #   - go test ./...
   
 - name: build_auth
-  image: golang:1.12-alpine
+  image: golang:1.12-stretch
   commands:
   - cd auth/
   - export GO111MODULE=on
   - export PATH=$PATH:/go
-  - apk add git build-base
   - go build
 #   - go test ./...
 
 - name: build_auth2
-  image: golang:1.12-alpine
+  image: golang:1.12-stretch
   commands:
   - cd auth2/
   - export GO111MODULE=on
   - export PATH=$PATH:/go
-  - apk add git build-base
   - go build
 #   - ls -la
 

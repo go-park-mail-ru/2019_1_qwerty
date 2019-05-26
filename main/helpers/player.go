@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"2019_1_qwerty/models"
-	"log"
 
 	"github.com/gorilla/websocket"
 )
@@ -47,22 +46,13 @@ func (p *Player) Listen() {
 		for {
 			message := &models.Logs{}
 			err := p.conn.ReadJSON(message)
-			log.Println("err after readjson", err)
-			log.Println("player is", p)
 			if websocket.IsUnexpectedCloseError(err) {
-				log.Println(p)
-				log.Println(p.ID, "disconnected from the server")
-				p.room.RemovePlayer(p)
-				log.Println("disconnect!")
-				//for _, player := range p.room.Players {
-
-				//player.room.RemovePlayer(player)
-				//}
-
+				for _, player := range p.room.Players {
+					player.room.RemovePlayer(player)
+				}
 				return
 			}
 			if err != nil {
-				log.Println("cant read json")
 				continue
 			}
 			p.in <- message
