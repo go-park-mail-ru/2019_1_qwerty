@@ -34,7 +34,7 @@ func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("connected!")
 
-	player := helpers.NewPlayer(conn, cookie)
+	player := helpers.NewPlayer(conn, val[0], cookie)
 	go player.Listen()
 	helpers.MainGame.AddPlayer(player)
 }
