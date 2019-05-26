@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -16,6 +17,8 @@ func Start(port string) error {
 
 	router := mux.NewRouter()
 	// router.HandleFunc("/metrics", promhttp.Handler)
+	prometheus.MustRegister(api.Hits)
+	prometheus.MustRegister(api.FooCount)
 	router.Handle("/metrics", promhttp.Handler())
 	routerAPI := router.PathPrefix("/api").Subrouter()
 	routerAPI.HandleFunc("/user/signup", api.CreateUser).Methods("POST", "OPTIONS")

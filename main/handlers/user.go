@@ -54,18 +54,14 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * 1024 * 1024)
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		Hits.WithLabelValues(string(http.StatusBadRequest), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusBadRequest)
+		ErrorMux(&w, r, http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
 	cookie, err := r.Cookie("sessionid")
 	if err != nil {
-		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusNotFound)
+		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
 	nickname := helpers.GetOwner(string(cookie.Value))
@@ -79,14 +75,10 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	err = helpers.DBUserUpdateAvatar(nickname, objectName)
 	if err != nil {
-		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusNotFound)
+		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
-	Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
-	FooCount.Add(1)
-	w.WriteHeader(http.StatusOK)
+	ErrorMux(&w, r, http.StatusOK)
 }
 
 // CreateUser - Создание пользователя
@@ -97,9 +89,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// Если логин и пароль совпадут, то пользователь будет залогинен, а не зареган
 		if !helpers.LoginUser(user.Nickname, user.Password) {
-			Hits.WithLabelValues(string(http.StatusConflict), r.URL.String()).Inc()
-			FooCount.Add(1)
-			w.WriteHeader(http.StatusConflict)
+			ErrorMux(&w, r, http.StatusConflict)
 			return
 		}
 	}
@@ -110,9 +100,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-	Hits.WithLabelValues(string(http.StatusCreated), r.URL.String()).Inc()
-	FooCount.Add(1)
-	w.WriteHeader(http.StatusCreated)
+	ErrorMux(&w, r, http.StatusCreated)
 }
 
 // LoginUser - авторизация
@@ -123,9 +111,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("LoginUser from json ok")
 
 	if !helpers.LoginUser(user.Nickname, user.Password) {
-		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusNotFound)
+		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
 	log.Println("login_pass valid")
@@ -138,9 +124,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 	log.Println("session ok")
-	Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
-	FooCount.Add(1)
-	w.WriteHeader(http.StatusOK)
+	ErrorMux(&w, r, http.StatusOK)
 	log.Println("login secs returned")
 }
 
@@ -155,18 +139,12 @@ func CheckUserBySession(w http.ResponseWriter, r *http.Request) {
 				Path:     "/",
 				HttpOnly: true,
 			})
-			Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-			FooCount.Add(1)
-			w.WriteHeader(http.StatusNotFound)
+			ErrorMux(&w, r, http.StatusNotFound)
 			return
 		}
-		Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusOK)
+		ErrorMux(&w, r, http.StatusOK)
 	} else {
-		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusNotFound)
+		ErrorMux(&w, r, http.StatusNotFound)
 	}
 }
 
@@ -182,9 +160,7 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 		})
 		helpers.DestroySession(string(cookie.Value))
 	}
-	Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
-	FooCount.Add(1)
-	w.WriteHeader(http.StatusOK)
+	ErrorMux(&w, r, http.StatusOK)
 }
 
 //GetProfileInfo - return player data
@@ -192,9 +168,7 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	cookie, err := r.Cookie("sessionid")
 	if err != nil {
-		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusNotFound)
+		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
 	user := helpers.GetOwner(string(cookie.Value))
@@ -209,9 +183,7 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 		}
 		res.Avatar = presignedURL.String()
 	}
-	Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
-	FooCount.Add(1)
-	w.WriteHeader(http.StatusOK)
+	ErrorMux(&w, r, http.StatusOK)
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -221,21 +193,15 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	cookie, err := r.Cookie("sessionid")
 	if err != nil {
-		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusNotFound)
+		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
 
 	nickname := helpers.GetOwner(string(cookie.Value))
 	err = helpers.DBUserUpdate(nickname, &user)
 	if err != nil {
-		Hits.WithLabelValues(string(http.StatusNotFound), r.URL.String()).Inc()
-		FooCount.Add(1)
-		w.WriteHeader(http.StatusNotFound)
+		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
-	Hits.WithLabelValues(string(http.StatusOK), r.URL.String()).Inc()
-	FooCount.Add(1)
-	w.WriteHeader(http.StatusOK)
+	ErrorMux(&w, r, http.StatusOK)
 }
