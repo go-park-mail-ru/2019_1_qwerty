@@ -10,6 +10,7 @@ services:
       #- ./etc/nginx/conf.d/git-http.conf:/etc/nginx/conf.d/git-http.conf:ro"
       - ./log/nginx:/var/log/nginx
       - ./nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ~/certs:/etc/letsencrypt/live/site:ro
     environment:
       - NGINX_SERVERNAME="brbrroman.ru"
     ports:
