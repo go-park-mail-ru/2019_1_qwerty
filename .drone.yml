@@ -16,7 +16,6 @@ steps:
   - cd main/
   - export GO111MODULE=on
   - export PATH=$PATH:/go
-  - apk add git build-base
   - go build
 #   - go test ./...
   
@@ -26,7 +25,6 @@ steps:
   - cd auth/
   - export GO111MODULE=on
   - export PATH=$PATH:/go
-  - apk add git build-base
   - go build
 #   - go test ./...
 
@@ -36,7 +34,6 @@ steps:
   - cd auth2/
   - export GO111MODULE=on
   - export PATH=$PATH:/go
-  - apk add git build-base
   - go build
 #   - ls -la
 
