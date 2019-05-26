@@ -10,15 +10,17 @@ import (
 type Player struct {
 	conn *websocket.Conn
 	ID   string
+	cookie string
 	room *Room
 	in   chan *models.Logs
 	out  chan *models.Logs
 }
 
 //NewPlayer - creates new player
-func NewPlayer(connection *websocket.Conn, id string) *Player {
+func NewPlayer(connection *websocket.Conn, key string, value string) *Player {
 	return &Player{
-		ID:   id,
+		ID:   key,
+		cookie: value,
 		in:   make(chan *models.Logs),
 		out:  make(chan *models.Logs),
 		conn: connection,
