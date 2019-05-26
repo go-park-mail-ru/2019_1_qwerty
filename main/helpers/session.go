@@ -74,3 +74,16 @@ func GetOwner(sessionID string) string {
 	}
 	return user.Nickname
 }
+
+// бестолковая обёртка над удалённой функцией из-за соединения
+func GetID(name string) (string, error) {
+	ctx := context.Background()
+	user, err := sessManager.GetOwner(ctx,
+		&session.Session{
+			ID: "KEY" + name,
+		})
+	if err != nil {
+		log.Println(err)
+	}
+	return user.Nickname, err
+}

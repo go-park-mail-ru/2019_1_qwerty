@@ -4,14 +4,13 @@ import (
 	"2019_1_qwerty/helpers"
 	"log"
 	"net/http"
-
 	"github.com/gorilla/websocket"
 )
 
 //WebsocketConn - upgrade to websocket
 func WebsocketConn(w http.ResponseWriter, r *http.Request) {
-	upgrader := &websocket.Upgrader{}
-	cookie, err := r.Cookie("sessionid")
+	val, _ := r.URL.Query()["nickname"]
+	cookie, err := helpers.GetID(val[0])
 
 	if err != nil {
 		log.Println("no auth!")
@@ -19,6 +18,7 @@ func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	upgrader := &websocket.Upgrader{}
 	conn, err := upgrader.Upgrade(w, r, http.Header{"Upgrade": []string{"websocket"}})
 
 	if err != nil {
@@ -29,7 +29,7 @@ func WebsocketConn(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("connected!")
 
-	player := helpers.NewPlayer(conn, cookie.Value)
+	player := helpers.NewPlayer(conn, cookie)
 	go player.Listen()
 	helpers.MainGame.AddPlayer(player)
 }

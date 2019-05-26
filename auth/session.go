@@ -43,11 +43,14 @@ func NewSessionManager() *SessionManager {
 func (sm *SessionManager) CreateSession(ctx context.Context, in *session.User) (*session.Session, error) {
 	sessionID := (uuid.NewV4()).String()
 	_, _ = redis.String(RedisConnect.Do("SET", sessionID, in.Nickname, "EX", 86400))
+	_, _ = redis.String(RedisConnect.Do("SET", in.Nickname, sessionID, "EX", 86400))
 	return &session.Session{ID: sessionID}, nil
 }
 
 func (sm *SessionManager) DestroySession(ctx context.Context, in *session.Session) (*session.Status, error) {
 	_, _ = RedisConnect.Do("DEL", in.ID)
+	user, _ := sm.GetOwner(ctx, in)
+	_, _ = RedisConnect.Do("DEL", user.Nickname)
 	return &session.Status{Ok: true}, nil
 }
 
@@ -57,6 +60,15 @@ func (sm *SessionManager) ValidateSession(ctx context.Context, in *session.Sessi
 }
 
 func (sm *SessionManager) GetOwner(ctx context.Context, in *session.Session) (*session.User, error) {
-	res, _ := redis.String(RedisConnect.Do("GET", in.ID))
+	res := ""
+	str := in.ID[:3]
+
+	if str == "KEY" {
+		name := in.ID[3:]
+		res, _ = redis.String(RedisConnect.Do("GET", name))
+	} else {
+		res, _ = redis.String(RedisConnect.Do("GET", in.ID))
+	}
+
 	return &session.User{Nickname: res}, nil
 }
