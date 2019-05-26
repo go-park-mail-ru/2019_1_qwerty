@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"2019_1_qwerty/handlers"
 	"net/http"
 )
 
@@ -11,8 +12,7 @@ func ErrorMiddleware(handler http.Handler) http.Handler {
 			err := recover()
 
 			if err != nil {
-				//log.Println(err)
-				http.Error(w, "Internal Server Error", 500)
+				handlers.ErrorMux(&w, r, http.StatusInternalServerError)
 			}
 
 		}()
