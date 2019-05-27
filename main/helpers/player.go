@@ -31,13 +31,13 @@ func handleCoordinates(player *Player, message *models.Logs) {
 	tmp := player.room.state.Players[player.number]
 	switch message.Head {
 	case "LEFT":
-		tmp.X = tmp.X - 1
+		tmp.X = tmp.X - 2
 	case "RIGHT":
-		tmp.X = tmp.X + 1
+		tmp.X = tmp.X + 2
 	case "UP":
-		tmp.Y = tmp.Y - 1
+		tmp.Y = tmp.Y - 2
 	case "DOWN":
-		tmp.Y = tmp.Y + 1
+		tmp.Y = tmp.Y + 2
 	}
 	player.room.state.Players[player.number] = tmp
 }
@@ -74,7 +74,7 @@ func (p *Player) Listen() {
 //SendState - send info to front about player
 func (p *Player) SendState(state *RoomState) {
 	p.out <- &models.Logs{Head: "STATE", Content: state.Players}
-	//p.out <- &models.Logs{Head: "OBJECTS", Content: state.Objects}
+	p.out <- &models.Logs{Head: "OBJECTS", Content: state.Objects}
 }
 
 //SendMessage - send info to front about player
