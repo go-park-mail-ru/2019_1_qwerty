@@ -10,7 +10,7 @@ import (
 type Player struct {
 	conn *websocket.Conn
 	ID   string
-	cookie string
+	number string
 	room *Room
 	in   chan *models.Logs
 	out  chan *models.Logs
@@ -20,7 +20,7 @@ type Player struct {
 func NewPlayer(connection *websocket.Conn, key string, value string) *Player {
 	return &Player{
 		ID:   key,
-		cookie: value,
+		number: value,
 		in:   make(chan *models.Logs),
 		out:  make(chan *models.Logs),
 		conn: connection,
@@ -28,7 +28,7 @@ func NewPlayer(connection *websocket.Conn, key string, value string) *Player {
 }
 
 func handleCoordinates(player *Player, message *models.Logs) {
-	tmp := player.room.state.Players[player.ID]
+	tmp := player.room.state.Players[player.number]
 	switch message.Head {
 	case "LEFT":
 		tmp.X = tmp.X - 1
@@ -39,7 +39,7 @@ func handleCoordinates(player *Player, message *models.Logs) {
 	case "DOWN":
 		tmp.Y = tmp.Y + 1
 	}
-	player.room.state.Players[player.ID] = tmp
+	player.room.state.Players[player.number] = tmp
 }
 
 //Listen - listen info
