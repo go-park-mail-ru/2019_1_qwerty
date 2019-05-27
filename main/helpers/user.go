@@ -7,13 +7,13 @@ import (
 )
 
 const sqlInsertUser = `
-INSERT INTO users(nickname, email, "password")
-VALUES ($1, $2, $3)
+INSERT INTO users(nickname, "password")
+VALUES ($1, $2)
 `
 
 // DBUserCreate - Создание пользовтеля
 func DBUserCreate(user *models.User) error {
-	_, err := database.Database.Exec(sqlInsertUser, user.Nickname, user.Email, user.Password)
+	_, err := database.Database.Exec(sqlInsertUser, user.Nickname, user.Password)
 	if err != nil {
 		log.Println(err)
 		return models.EUserAE
@@ -23,13 +23,13 @@ func DBUserCreate(user *models.User) error {
 
 const sqlUpdateUserByNickname = `
 UPDATE users
-SET email = COALESCE(NULLIF($2, ''), email), password = COALESCE(NULLIF($3, ''), password)
+SET password = COALESCE(NULLIF($3, ''), password)
 WHERE nickname = $1
 `
 
 // DBUserUpdate - Обновление данных о пользователе
 func DBUserUpdate(nickname string, user *models.User) error {
-	_, _ = database.Database.Exec(sqlUpdateUserByNickname, nickname, user.Email, user.Password)
+	_, _ = database.Database.Exec(sqlUpdateUserByNickname, nickname, user.Password)
 	return nil
 }
 
@@ -69,7 +69,7 @@ func DBUserValidate(user *models.User) error {
 }
 
 const sqlSelectUserByNickname = `
-SELECT nickname, email, avatar
+SELECT nickname, avatar
 FROM users
 WHERE nickname = $1
 `
@@ -78,7 +78,7 @@ WHERE nickname = $1
 func DBUserGet(nickname string) (*models.User, error) {
 	user := models.User{}
 	row := database.Database.QueryRow(sqlSelectUserByNickname, nickname)
-	if err := row.Scan(&user.Nickname, &user.Email, &user.Avatar); err != nil {
+	if err := row.Scan(&user.Nickname, &user.Avatar); err != nil {
 		log.Println(err)
 		return nil, err
 	}
