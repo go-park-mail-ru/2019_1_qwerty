@@ -74,7 +74,7 @@ func (p *Player) Listen() {
 //SendState - send info to front about player
 func (p *Player) SendState(state *RoomState) {
 	p.out <- &models.Logs{Head: "STATE", Content: state.Players}
-	p.out <- &models.Logs{Head: "OBJECTS", Content: state.Objects}
+	//p.out <- &models.Logs{Head: "OBJECTS", Content: state.Objects}
 }
 
 //SendMessage - send info to front about player
