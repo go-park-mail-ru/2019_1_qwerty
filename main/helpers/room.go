@@ -49,7 +49,7 @@ func NewRoom(maxPlayers int) *Room {
 		MaxPlayers: maxPlayers,
 		register:   make(chan *Player),
 		unregister: make(chan *Player),
-		ticker:     time.NewTicker(25 * time.Millisecond),   // HAS TO BEE 100 * ...
+		ticker:     time.NewTicker(50 * time.Millisecond),   // HAS TO BEE 100 * ...
 		workTicker: time.NewTicker(1500 * time.Millisecond), // meteors
 		Players:    make(map[string]*Player),
 		mu:         new(sync.Mutex),
@@ -127,7 +127,7 @@ func (r *Room) Run() {
 
 		case <-r.workTicker.C:
 			if len(r.Players) == 2 {
-				//r.state.Objects = CreateObject(r)
+				r.state.Objects = CreateObject(r)
 			}
 
 		case <-r.ticker.C:
