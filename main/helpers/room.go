@@ -76,11 +76,11 @@ func CreatePlayerState(players map[string]*Player) *RoomState {
 	i := 0
 
 	for _, player := range players {
-		tmp := state.Players[player.ID]
+		tmp := state.Players[player.number]
 		tmp.ID = player.ID
 		tmp.X = 50
 		tmp.Y = 50 * (i + 1)
-		state.Players[player.ID] = tmp
+		state.Players[player.number] = tmp
 		i++
 	}
 
@@ -102,7 +102,7 @@ func (r *Room) Run() {
 		case <-r.unregister:
 			r.mu.Lock()
 			for _, p := range r.Players {
-				delete(r.Players, p.ID)
+				delete(r.Players, p.number)
 				p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 			}
 			r.mu.Unlock()
@@ -110,7 +110,7 @@ func (r *Room) Run() {
 
 		case player := <-r.register:
 			r.mu.Lock()
-			r.Players[player.ID] = player
+			r.Players[player.number] = player
 			player.room = r
 			r.mu.Unlock()
 			player.SendMessage(&models.Logs{Head: "CONNECTED", Content: nil})
@@ -149,7 +149,7 @@ func (r *Room) Run() {
 								for _, p := range r.Players {
 									p.SendState(r.state)
 									r.mu.Lock()
-									delete(r.Players, p.ID)
+									delete(r.Players, p.number)
 									r.mu.Unlock()
 									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 								}

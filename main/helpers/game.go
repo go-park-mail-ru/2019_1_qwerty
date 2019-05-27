@@ -45,6 +45,11 @@ LOOP:
 		player := <-g.register
 		for _, room := range g.rooms {
 			if len(room.Players) < room.MaxPlayers {
+				if len(room.Players) == 0 {
+					player.number = "player1"
+				} else {
+					player.number = "player2"
+				}
 				go room.Run()
 				room.mu.Lock()
 				room.AddPlayer(player)
@@ -59,6 +64,7 @@ LOOP:
 		room.mu.Unlock()
 		go room.Run()
 		room.mu.Lock()
+		player.number = "player1"
 		room.AddPlayer(player)
 		room.mu.Unlock()
 	}
