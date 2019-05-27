@@ -90,7 +90,7 @@ func CreatePlayerState(players map[string]*Player) *RoomState {
 //CreateObject - create meteor
 func CreateObject(r *Room) []ObjectState {
 	rand.Seed(time.Now().UnixNano())
-	object := ObjectState{X: 350, Y: rand.Intn(120-30) + 30, Speed: rand.Intn(10-4) + 4}
+	object := ObjectState{X: 350, Y: rand.Intn(120-30) + 30, Speed: rand.Intn(3-1) + 1}
 	r.state.Objects = append(r.state.Objects, object)
 	return r.state.Objects
 }
