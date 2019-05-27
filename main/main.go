@@ -22,6 +22,10 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	if err := helpers.OpenAuth(); err != nil {
+		log.Fatal(err.Error())
+	}
+
 	err := router.Start(os.Getenv("PORT"))
 	if err != nil {
 		log.Fatal(err)
