@@ -17,6 +17,7 @@ type PlayerState struct {
 
 //ObjectState - object state in room->game
 type ObjectState struct {
+	ID	  int
 	X     int
 	Y     int
 	Speed int
@@ -126,7 +127,7 @@ func (r *Room) Run() {
 
 		case <-r.workTicker.C:
 			if len(r.Players) == 2 {
-				r.state.Objects = CreateObject(r)
+				//r.state.Objects = CreateObject(r)
 			}
 
 		case <-r.ticker.C:
@@ -135,8 +136,9 @@ func (r *Room) Run() {
 				tmp := r.state.Objects
 				r.state.Objects = make([]ObjectState, 0)
 
-				for _, object := range tmp {
+				for index, object := range tmp {
 					object.X = object.X - object.Speed
+					object.ID = index
 
 					if object.X > -30 {
 
