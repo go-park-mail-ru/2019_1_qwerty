@@ -25,7 +25,6 @@ func Start(port string) error {
 	routerAPI.HandleFunc("/user/create", api.CreateUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/login", api.LoginUser).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/score", api.GetNextAfter).Methods("GET")
-	routerAPI.HandleFunc("/score", api.CreateScore).Methods("POST", "OPTIONS")
 	routerAPI.HandleFunc("/user/check", api.CheckUserBySession).Methods("GET")
 	routerAPI.HandleFunc("/ws", api.WebsocketConn).Methods("GET", "POST", "OPTIONS")
 
