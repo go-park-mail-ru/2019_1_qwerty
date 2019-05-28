@@ -98,16 +98,18 @@ func CreateObject(r *Room) []ObjectState {
 	return r.state.Objects
 }
 
+const sqlInsertPlayer = `
+	INSERT INTO scores(player, score) 
+	VALUES($1, $2) 
+	ON CONFLICT (player) DO 
+	UPDATE SET score = GREATEST(excluded.score, (SELECT score FROM scores WHERE player = $1))
+`
+
 func insertScoreToDB(players map[string]*Player) {
 	log.Println("insertScore...")
 	for _, player := range players {
 		log.Println(player.ID, player.score)
-		_, err := database.Database.Exec("
-			INSERT INTO scores(player, score) 
-			VALUES($1, $2) 
-			ON CONFLICT (player) DO 
-			UPDATE SET score = GREATEST(
-			excluded.score, (SELECT score FROM scores WHERE player = $1))", player.ID, player.score)
+		_, err := database.Database.Exec(sqlInsertPlayer, player.ID, player.score)
 
 		if err != nil {
 			log.Println(err)
