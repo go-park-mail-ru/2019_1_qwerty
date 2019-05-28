@@ -105,5 +105,4 @@ steps:
     event:
     - push
     branch:
-      exclude:
-      - master
+    - master
