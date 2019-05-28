@@ -7,18 +7,28 @@ CREATE EXTENSION IF NOT EXISTS CITEXT;
 
 CREATE TABLE IF NOT EXISTS users (
     nickname        CITEXT PRIMARY KEY COLLATE ucs_basic,
-    "password"  text,
+    "password"      TEXT,
     avatar          TEXT DEFAULT ''
 );
 
-CREATE TABLE IF NOT EXISTS games (
-    id              SERIAL8 PRIMARY KEY,
-    created         TIMESTAMPTZ(3) NOT NULL DEFAULT now()
-);
 
 CREATE TABLE IF NOT EXISTS scores (
-    game        BIGINT REFERENCES games,
-    player      CITEXT REFERENCES users,
-    score       BIGINT DEFAULT 0,
-    PRIMARY KEY (game, player)
+    player          CITEXT PRIMARY KEY REFERENCES users,
+    score           INTEGER DEFAULT 0
 );
+
+CREATE OR REPLACE FUNCTION check_score()
+    RETURNS TRIGGER AS
+    $$
+    BEGIN
+        IF new.score > old.score
+            THEN UPDATE scores SET score = new.score WHERE player = new.player;
+            RETURN new;
+        END IF;
+    END;
+    $$
+    LANGUAGE 'plpgsql';
+
+CREATE TRIGGER check_score
+    AFTER UPDATE ON scores
+    FOR EACH ROW EXECUTE PROCEDURE check_score()
