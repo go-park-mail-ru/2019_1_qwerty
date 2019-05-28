@@ -93,7 +93,7 @@ steps:
   settings:
     token: 
       from_secret: tg_token
-      to: telegram_user_id
+    to: telegram_user_id
     message: >
       {{#success build.status}}
         build {{build.number}} succeeded. Good job.
