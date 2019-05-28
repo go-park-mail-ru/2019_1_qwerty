@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"2019_1_qwerty/main/helpers"
-	"2019_1_qwerty/main/models"
+	"2019_1_qwerty/helpers"
+	"2019_1_qwerty/models"
 
 	"github.com/joho/godotenv"
 	"github.com/minio/minio-go"

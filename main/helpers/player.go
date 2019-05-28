@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"2019_1_qwerty/main/models"
+	"2019_1_qwerty/models"
 
 	"github.com/gorilla/websocket"
 )
@@ -14,6 +14,7 @@ type Player struct {
 	room   *Room
 	in     chan *models.Logs
 	out    chan []byte
+	score  int
 }
 
 //NewPlayer - creates new player
@@ -24,6 +25,7 @@ func NewPlayer(connection *websocket.Conn, key string, value string) *Player {
 		in:     make(chan *models.Logs),
 		out:    make(chan []byte),
 		conn:   connection,
+		score:  0,
 	}
 }
 
