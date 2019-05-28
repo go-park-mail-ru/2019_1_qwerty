@@ -23,7 +23,7 @@ func DBUserCreate(user *models.User) error {
 
 const sqlUpdateUserByNickname = `
 UPDATE users
-SET password = COALESCE(NULLIF($3, ''), password)
+SET password = COALESCE(NULLIF($2, ''), password)
 WHERE nickname = $1
 `
 
