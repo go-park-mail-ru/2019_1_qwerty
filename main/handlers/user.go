@@ -69,8 +69,8 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	nickname := helpers.GetOwner(string(cookie.Value))
-	val, _ := uuid.NewV4()
-	objectName := val.String() + filepath.Ext(fileHeader.Filename)
+
+	objectName := (uuid.NewV4()).String() + filepath.Ext(fileHeader.Filename)
 	_, err = s3Client.PutObject(bucketName, objectName, file, -1, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 
 	if err != nil {
