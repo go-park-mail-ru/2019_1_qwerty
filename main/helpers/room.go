@@ -3,7 +3,6 @@ package helpers
 import (
 	"2019_1_qwerty/database"
 	"2019_1_qwerty/models"
-	"log"
 	"math"
 	"math/rand"
 	"sync"
@@ -109,16 +108,13 @@ const sqlUpdatePlayer = `
 `
 
 func insertScoreToDB(players map[string]*Player) {
-	log.Println("insertScore...")
 	for _, player := range players {
 		var name string
 		err := database.Database.QueryRow("SELECT player FROM scores WHERE player = $1", player.ID).Scan(&name)
 
 		if err != nil {
-			log.Println("insert")
 			_, _ = database.Database.Exec(sqlInsertPlayer, player.ID, player.score)
 		} else {
-			log.Println("update")
 			_, _ = database.Database.Exec(sqlUpdatePlayer, player.ID, player.score)
 		}
 
@@ -182,7 +178,6 @@ func (r *Room) Run() {
 								r.state.Objects = append(r.state.Objects, object)
 
 								r.mu.Lock()
-								log.Println("adding points")
 								insertScoreToDB(r.Players)
 								r.mu.Unlock()
 

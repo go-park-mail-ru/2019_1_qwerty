@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS users (
     avatar          TEXT DEFAULT ''
 );
 
-DROP TABLE IF EXISTS scores CASCADE;
 CREATE TABLE IF NOT EXISTS scores (
     player          CITEXT PRIMARY KEY REFERENCES users,
     score           INTEGER DEFAULT 0
