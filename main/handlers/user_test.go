@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"2019_1_qwerty/database"
-	"2019_1_qwerty/helpers"
+	"2019_1_qwerty/main/database"
+	"2019_1_qwerty/main/helpers"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"

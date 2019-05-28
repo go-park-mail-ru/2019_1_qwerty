@@ -1,7 +1,9 @@
 package helpers
 
 import (
-	"2019_1_qwerty/models"
+	"2019_1_qwerty/main/database"
+	"2019_1_qwerty/main/models"
+	"log"
 	"math"
 	"math/rand"
 	"sync"
@@ -17,7 +19,7 @@ type PlayerState struct {
 
 //ObjectState - object state in room->game
 type ObjectState struct {
-	ID	  int
+	ID    int
 	X     int
 	Y     int
 	Speed int
@@ -96,6 +98,23 @@ func CreateObject(r *Room) []ObjectState {
 	return r.state.Objects
 }
 
+func insertScoreToDB(players map[string]*Player) {
+	for _, player := range players {
+		err := database.Database.QueryRow("SELECT player FROM scores WHERE player = $1", player.ID).Scan(&player.ID)
+
+		var errIU error
+		if err != nil {
+			_, errIU = database.Database.Exec("INSERT INTO scores(player, score) VALUES($1, $2)", player.ID, player.score)
+		} else {
+			_, errIU = database.Database.Exec("UPDATE scores SET score = $1 WHERE player = $2", player.score, player.ID)
+		}
+
+		if errIU != nil {
+			log.Println(errIU)
+		}
+	}
+}
+
 //Run - runs rooms
 func (r *Room) Run() {
 	for {
@@ -128,6 +147,9 @@ func (r *Room) Run() {
 		case <-r.workTicker.C:
 			if len(r.Players) == 2 {
 				r.state.Objects = CreateObject(r)
+				for _, player := range r.Players {
+					player.score += 5
+				}
 			}
 
 		case <-r.ticker.C:
@@ -155,6 +177,10 @@ func (r *Room) Run() {
 									r.mu.Unlock()
 									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 								}
+
+								r.mu.Lock()
+								insertScoreToDB(r.Players)
+								r.mu.Unlock()
 								return
 							}
 

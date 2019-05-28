@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"2019_1_qwerty/helpers"
+	"2019_1_qwerty/main/helpers"
 	"log"
 	"net/http"
 	"github.com/gorilla/websocket"

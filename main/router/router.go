@@ -1,8 +1,8 @@
 package router
 
 import (
-	api "2019_1_qwerty/handlers"
-	"2019_1_qwerty/middlewares"
+	api "2019_1_qwerty/main/handlers"
+	"2019_1_qwerty/main/middlewares"
 	"log"
 	"net/http"
 

@@ -1,29 +1,31 @@
 package helpers
 
 import (
-	"2019_1_qwerty/models"
+	"2019_1_qwerty/main/models"
 
 	"github.com/gorilla/websocket"
 )
 
 //Player - player struct
 type Player struct {
-	conn *websocket.Conn
-	ID   string
+	conn   *websocket.Conn
+	ID     string
 	number string
-	room *Room
-	in   chan *models.Logs
-	out  chan *models.Logs
+	room   *Room
+	in     chan *models.Logs
+	out    chan []byte
+	score  int
 }
 
 //NewPlayer - creates new player
 func NewPlayer(connection *websocket.Conn, key string, value string) *Player {
 	return &Player{
-		ID:   key,
+		ID:     key,
 		number: value,
-		in:   make(chan *models.Logs),
-		out:  make(chan *models.Logs),
-		conn: connection,
+		in:     make(chan *models.Logs),
+		out:    make(chan []byte),
+		conn:   connection,
+		score:  0,
 	}
 }
 
@@ -48,15 +50,18 @@ func (p *Player) Listen() {
 		for {
 			message := &models.Logs{}
 			err := p.conn.ReadJSON(message)
+
 			if websocket.IsUnexpectedCloseError(err) {
 				for _, player := range p.room.Players {
 					player.room.RemovePlayer(player)
 				}
 				return
 			}
+
 			if err != nil {
 				continue
 			}
+
 			p.in <- message
 		}
 	}()
@@ -73,11 +78,16 @@ func (p *Player) Listen() {
 
 //SendState - send info to front about player
 func (p *Player) SendState(state *RoomState) {
-	p.out <- &models.Logs{Head: "STATE", Content: state.Players}
-	p.out <- &models.Logs{Head: "OBJECTS", Content: state.Objects}
+	jsonState := &models.Logs{Head: "STATE", Content: state.Players}
+	jsonObjects := &models.Logs{Head: "OBJECTS", Content: state.Objects}
+	resultState, _ := jsonState.MarshalJSON()
+	resultObjects, _ := jsonObjects.MarshalJSON()
+	p.out <- resultState
+	p.out <- resultObjects
 }
 
 //SendMessage - send info to front about player
 func (p *Player) SendMessage(message *models.Logs) {
-	p.out <- message
+	result, _ := message.MarshalJSON()
+	p.out <- result
 }

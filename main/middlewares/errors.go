@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"2019_1_qwerty/handlers"
+	"2019_1_qwerty/main/handlers"
 	"log"
 	"net/http"
 )
