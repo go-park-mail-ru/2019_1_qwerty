@@ -77,10 +77,6 @@ services:
     container_name: grafana
     depends_on:
       - prometheus
-    volumes:
-      - ../state/var/lib/grafana:/var/lib/grafana
-      - ../state/etc/grafana:/etc/grafana
-      - ../state/var/log/grafana:/var/log/grafana
     restart: on-failure
 
   prometheus:
