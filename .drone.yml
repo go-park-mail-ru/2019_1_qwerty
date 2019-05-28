@@ -97,7 +97,13 @@ steps:
       from_secret: tg_chat
     message: >
       {{#success build.status}}
-        {{repo.owner}}{{repo.name}}: Билд "{{commit.message}}" от **{{commit.author}}** на **{{build.event}}** в **{{commit.branch}}** успешно собран.
+        БЭКЕНД: Билд "{{commit.message}}" от {{commit.author}} на {{build.event}} в {{repo.owner}}{{repo.name}}:{{commit.branch}} успешно собран.
       {{else}}
-        {{repo.owner}}{{repo.name}}: Билд "{{commit.message}}" от **{{commit.author}}** на **{{build.event}}** в **{{commit.branch}}** ПРОВАЛЕН. {{commit.link}}
+        БЭКЕНД: Билд "{{commit.message}}" от {{commit.author}} на {{build.event}} в {{repo.owner}}{{repo.name}}:{{commit.branch}} ПРОВАЛЕН. {{commit.link}}
       {{/success}}
+    when:
+    event:
+    - push
+    branch:
+      exclude:
+      - master
