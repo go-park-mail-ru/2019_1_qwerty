@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"2019_1_qwerty/models"
+	"2019_1_qwerty/main/models"
 	"math"
 	"math/rand"
 	"sync"

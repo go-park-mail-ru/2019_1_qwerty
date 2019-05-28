@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"2019_1_qwerty/helpers"
-	"2019_1_qwerty/models"
+	"2019_1_qwerty/main/helpers"
+	"2019_1_qwerty/main/models"
 
 	"github.com/joho/godotenv"
 	"github.com/minio/minio-go"
@@ -53,46 +53,54 @@ func init() {
 func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * 1024 * 1024)
 	file, fileHeader, err := r.FormFile("file")
+
 	if err != nil {
 		ErrorMux(&w, r, http.StatusBadRequest)
 		return
 	}
+
 	defer file.Close()
 
 	cookie, err := r.Cookie("sessionid")
+
 	if err != nil {
 		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
+
 	nickname := helpers.GetOwner(string(cookie.Value))
-
-	objectName := (uuid.NewV4()).String() + filepath.Ext(fileHeader.Filename)
-
+	val, _ := uuid.NewV4()
+	objectName := val.String() + filepath.Ext(fileHeader.Filename)
 	_, err = s3Client.PutObject(bucketName, objectName, file, -1, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	err = helpers.DBUserUpdateAvatar(nickname, objectName)
+
 	if err != nil {
 		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
+
 	ErrorMux(&w, r, http.StatusOK)
 }
 
 // CreateUser - Создание пользователя
 func CreateUser(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
 	user := models.User{}
-	_ = json.NewDecoder(r.Body).Decode(&user)
+	user.UnmarshalJSON(body)
 	err := helpers.DBUserCreate(&user)
+
 	if err != nil {
-		// Если логин и пароль совпадут, то пользователь будет залогинен, а не зареган
 		if !helpers.LoginUser(user.Nickname, user.Password) {
 			ErrorMux(&w, r, http.StatusConflict)
 			return
 		}
 	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
 		Value:    helpers.CreateSession(user.Nickname),
@@ -100,21 +108,20 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
+
 	ErrorMux(&w, r, http.StatusCreated)
 }
 
 // LoginUser - авторизация
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	log.Println("Start LoginUser")
+	body, _ := ioutil.ReadAll(r.Body)
 	user := models.User{}
-	_ = json.NewDecoder(r.Body).Decode(&user)
-	log.Println("LoginUser from json ok")
+	user.UnmarshalJSON(body)
 
 	if !helpers.LoginUser(user.Nickname, user.Password) {
 		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
-	log.Println("login_pass valid")
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
@@ -123,9 +130,8 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-	log.Println("session ok")
+
 	ErrorMux(&w, r, http.StatusOK)
-	log.Println("login secs returned")
 }
 
 //CheckUserBySession - user authorization status // Разобрать говно потом
@@ -167,10 +173,12 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	cookie, err := r.Cookie("sessionid")
+
 	if err != nil {
 		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
+
 	user := helpers.GetOwner(string(cookie.Value))
 	res, _ := helpers.DBUserGet(user)
 
@@ -183,15 +191,19 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 		}
 		res.Avatar = presignedURL.String()
 	}
+
 	ErrorMux(&w, r, http.StatusOK)
-	json.NewEncoder(w).Encode(res)
+	result, _ := res.MarshalJSON()
+	w.Write(result)
 }
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
 	user := models.User{}
-	_ = json.NewDecoder(r.Body).Decode(&user)
+	user.UnmarshalJSON(body)
 	cookie, err := r.Cookie("sessionid")
+
 	if err != nil {
 		ErrorMux(&w, r, http.StatusNotFound)
 		return
@@ -199,9 +211,11 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 
 	nickname := helpers.GetOwner(string(cookie.Value))
 	err = helpers.DBUserUpdate(nickname, &user)
+
 	if err != nil {
 		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}
+
 	ErrorMux(&w, r, http.StatusOK)
 }
