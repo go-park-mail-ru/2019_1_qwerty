@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS scores (
     score           INTEGER DEFAULT 0
 );
 
+
 CREATE OR REPLACE FUNCTION check_score()
     RETURNS TRIGGER AS
     $$
@@ -29,6 +30,7 @@ CREATE OR REPLACE FUNCTION check_score()
     $$
     LANGUAGE 'plpgsql';
 
+DROP TRIGGER IF EXISTS check_score ON scores;
 CREATE TRIGGER check_score
     AFTER UPDATE ON scores
-    FOR EACH ROW EXECUTE PROCEDURE check_score()
+    FOR EACH ROW EXECUTE PROCEDURE check_score();
