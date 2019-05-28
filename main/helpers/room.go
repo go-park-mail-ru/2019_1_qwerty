@@ -101,7 +101,7 @@ func CreateObject(r *Room) []ObjectState {
 const sqlInsertPlayer = `
 	INSERT INTO scores(player, score) 
 	VALUES($1, $2) 
-	ON CONFLICT (player) DO 
+	ON CONFLICT ON CONSTRAINT unique_player DO 
 	UPDATE SET score = GREATEST(excluded.score, (SELECT score FROM scores WHERE player = $1))
 `
 

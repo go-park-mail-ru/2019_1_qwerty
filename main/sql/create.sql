@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS scores (
     player          CITEXT PRIMARY KEY REFERENCES users,
-    score           INTEGER DEFAULT 0
+    score           INTEGER DEFAULT 0,
+    CONSTRAINT unique_player UNIQUE(player)
 );
 
 DROP TRIGGER IF EXISTS check_score ON scores;
