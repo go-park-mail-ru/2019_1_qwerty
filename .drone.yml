@@ -97,7 +97,7 @@ steps:
       from_secret: tg_user
     message: >
       {{#success build.status}}
-        build {{build.number}} succeeded. Good job.
+        {{repo.name}}: Билд {{commit.message}} от {{commit.author}} на {{build.event}} в {{commit.branch}} успешно собран.
       {{else}}
-        build {{build.number}} failed. Fix me please.
+        {{repo.name}}: Билд {{commit.message}} от {{commit.author}} на {{build.event}} в {{commit.branch}} ПРОВАЛЕН. {{commit.link}}
       {{/success}}
