@@ -199,9 +199,11 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
+	log.Println("to update")
 	body, _ := ioutil.ReadAll(r.Body)
 	user := models.User{}
 	user.UnmarshalJSON(body)
+	log.Println("new settings:", user.Nickname, user.Password)
 	cookie, err := r.Cookie("sessionid")
 
 	if err != nil {
@@ -210,6 +212,7 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	nickname := helpers.GetOwner(string(cookie.Value))
+	log.Println(nickname)
 	err = helpers.DBUserUpdate(nickname, &user)
 
 	if err != nil {

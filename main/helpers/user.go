@@ -29,6 +29,7 @@ WHERE nickname = $1
 
 // DBUserUpdate - Обновление данных о пользователе
 func DBUserUpdate(nickname string, user *models.User) error {
+	log.Println("in update:", nickname, user.Password)
 	_, _ = database.Database.Exec(sqlUpdateUserByNickname, nickname, user.Password)
 	return nil
 }

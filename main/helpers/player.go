@@ -13,7 +13,7 @@ type Player struct {
 	number string
 	room   *Room
 	in     chan *models.Logs
-	out    chan []byte
+	out    chan *models.Logs
 	score  int
 }
 
@@ -23,7 +23,7 @@ func NewPlayer(connection *websocket.Conn, key string, value string) *Player {
 		ID:     key,
 		number: value,
 		in:     make(chan *models.Logs),
-		out:    make(chan []byte),
+		out:    make(chan *models.Logs),
 		conn:   connection,
 		score:  0,
 	}
@@ -78,16 +78,16 @@ func (p *Player) Listen() {
 
 //SendState - send info to front about player
 func (p *Player) SendState(state *RoomState) {
-	jsonState := &models.Logs{Head: "STATE", Content: state.Players}
-	jsonObjects := &models.Logs{Head: "OBJECTS", Content: state.Objects}
-	resultState, _ := jsonState.MarshalJSON()
-	resultObjects, _ := jsonObjects.MarshalJSON()
-	p.out <- resultState
-	p.out <- resultObjects
+	// jsonState := &models.Logs{Head: "STATE", Content: state.Players}
+	// jsonObjects := &models.Logs{Head: "OBJECTS", Content: state.Objects}
+	// resultState, _ := jsonState.MarshalJSON()
+	// resultObjects, _ := jsonObjects.MarshalJSON()
+	p.out <- &models.Logs{Head: "STATE", Content: state.Players}
+	p.out <- &models.Logs{Head: "OBJECTS", Content: state.Objects}
 }
 
 //SendMessage - send info to front about player
 func (p *Player) SendMessage(message *models.Logs) {
-	result, _ := message.MarshalJSON()
-	p.out <- result
+	// result, _ := message.MarshalJSON()
+	p.out <- message
 }
