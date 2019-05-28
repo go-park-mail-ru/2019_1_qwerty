@@ -97,7 +97,7 @@ steps:
       from_secret: tg_user
     message: >
       {{#success build.status}}
-        {{repo.name}}: Билд __{{commit.message}}__ от **{{commit.author}}** на **{{build.event}}** в **{{commit.branch}}** успешно собран.
+        {{repo.owner}}{{repo.name}}: Билд "{{commit.message}}" от **{{commit.author}}** на **{{build.event}}** в **{{commit.branch}}** успешно собран.
       {{else}}
-        {{repo.name}}: Билд __{{commit.message}}__ от **{{commit.author}}** на **{{build.event}}** в **{{commit.branch}}** ПРОВАЛЕН. {{commit.link}}
+        {{repo.owner}}{{repo.name}}: Билд "{{commit.message}}" от **{{commit.author}}** на **{{build.event}}** в **{{commit.branch}}** ПРОВАЛЕН. {{commit.link}}
       {{/success}}
