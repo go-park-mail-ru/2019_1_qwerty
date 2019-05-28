@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"2019_1_qwerty/database"
-	"2019_1_qwerty/models"
+	"2019_1_qwerty/main/database"
+	"2019_1_qwerty/main/models"
 	"database/sql"
 	"log"
 	"testing"

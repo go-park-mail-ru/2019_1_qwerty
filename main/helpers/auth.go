@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"2019_1_qwerty/helpers/auth"
+	"2019_1_qwerty/main/helpers/auth"
 
 	"google.golang.org/grpc"
 )

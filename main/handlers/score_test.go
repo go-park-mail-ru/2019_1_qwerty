@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"2019_1_qwerty/database"
-	"2019_1_qwerty/helpers"
+	"2019_1_qwerty/main/database"
+	"2019_1_qwerty/main/helpers"
 	"database/sql"
 	"log"
 	"net/http"

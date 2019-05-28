@@ -7,4 +7,5 @@ type User struct {
 	Avatar   string `json:"avatar"`
 }
 
+//easyjson:json
 var Users map[string]User

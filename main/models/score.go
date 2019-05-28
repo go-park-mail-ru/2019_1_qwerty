@@ -7,4 +7,5 @@ type Score struct {
 	Points uint64 `json:"Score"`
 }
 
+//easyjson:json
 var Scores []Score
