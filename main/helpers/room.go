@@ -102,19 +102,15 @@ func insertScoreToDB(players map[string]*Player) {
 	log.Println("insertScore...")
 	for _, player := range players {
 		log.Println(player.ID, player.score)
-		err := database.Database.QueryRow("SELECT player FROM scores WHERE player = $1", player.ID).Scan(&player.ID)
+		_, err := database.Database.Exec("
+			INSERT INTO scores(player, score) 
+			VALUES($1, $2) 
+			ON CONFLICT (player) DO 
+			UPDATE SET score = GREATEST(
+			excluded.score, (SELECT score FROM scores WHERE player = $1))", player.ID, player.score)
 
-		var errIU error
 		if err != nil {
-			log.Println("will INSERT")
-			_, errIU = database.Database.Exec("INSERT INTO scores(player, score) VALUES($1, $2)", player.ID, player.score)
-		} else {
-			log.Println("will UPDATE")
-			_, errIU = database.Database.Exec("UPDATE scores SET score = $1 WHERE player = $2", player.score, player.ID)
-		}
-
-		if errIU != nil {
-			log.Println(errIU)
+			log.Println(err)
 		}
 	}
 }
@@ -174,6 +170,12 @@ func (r *Room) Run() {
 
 							if centres < sumOfRad {
 								r.state.Objects = append(r.state.Objects, object)
+
+								r.mu.Lock()
+								log.Println("adding points")
+								insertScoreToDB(r.Players)
+								r.mu.Unlock()
+
 								for _, p := range r.Players {
 									p.SendState(r.state)
 									r.mu.Lock()
@@ -182,10 +184,6 @@ func (r *Room) Run() {
 									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 								}
 
-								r.mu.Lock()
-								log.Println("adding points")
-								insertScoreToDB(r.Players)
-								r.mu.Unlock()
 								return
 							}
 
