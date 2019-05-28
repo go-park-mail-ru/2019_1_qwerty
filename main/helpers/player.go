@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"2019_1_qwerty/main/models"
+	"2019_1_qwerty/models"
 
 	"github.com/gorilla/websocket"
 )

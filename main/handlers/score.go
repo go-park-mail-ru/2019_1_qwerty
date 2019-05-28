@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"2019_1_qwerty/main/models"
+	"2019_1_qwerty/models"
 )
 
 func init() {
