@@ -75,6 +75,7 @@ func (sm *SessionManager) LoginUser(ctx context.Context, in *auth.User) (*auth.S
 		return &auth.Status{Ok: false}, nil
 	}
 
+	log.Println(in.Password, " | ", dbPassw)
 	if (in.Password) != dbPassw {
 		return &auth.Status{Ok: false}, nil
 	}
