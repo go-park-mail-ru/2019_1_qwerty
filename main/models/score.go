@@ -8,4 +8,4 @@ type Score struct {
 }
 
 //easyjson:json
-var Scores []Score
+type Scores []Score

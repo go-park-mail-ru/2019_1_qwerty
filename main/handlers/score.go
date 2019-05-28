@@ -1,19 +1,20 @@
 package handlers
 
 import (
-	"encoding/json"
-	"math/rand"
 	"net/http"
 	"strconv"
 
+	"2019_1_qwerty/database"
 	"2019_1_qwerty/models"
+	"log"
 )
 
-func init() {
-	models.Scores = []models.Score{}
-}
-
-const frameSize = 10
+const sqlGetScore = `
+	SELECT player, score FROM scores
+	ORDER BY score DESC
+	LIMIT $1
+	OFFSET $2
+`
 
 //GetNextAfter - get 10 players from scoreboard
 func GetNextAfter(w http.ResponseWriter, r *http.Request) {
@@ -30,29 +31,21 @@ func GetNextAfter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var answ []models.Score
+	rows, _ := database.Database.Query(sqlGetScore, 10, offset)
+	scores := models.Scores{}
+	i := 1
 
-	if offset+frameSize < len(models.Scores) {
-		answ = models.Scores[offset : offset+frameSize]
-	} else if offset < len(models.Scores) {
-		answ = models.Scores[offset:]
-	} else {
-		ErrorMux(&w, r, http.StatusNotFound)
-		return
+	for rows.Next() {
+		score := models.Score{}
+		score.Place = uint64(offset + i)
+		_ = rows.Scan(&score.Name, &score.Points)
+		i++
+
+		scores = append(scores, score)
+		log.Println(score.Place, score.Name, score.Points)
 	}
-	json.NewEncoder(w).Encode(answ)
+
+	result, _ := scores.MarshalJSON()
+	w.Write(result)
 	ErrorMux(&w, r, http.StatusOK)
-}
-
-//CreateScore - add player to scoreboard
-func CreateScore(w http.ResponseWriter, r *http.Request) {
-	name := "test49" // name = getUsernameByCookie()
-	points := 0
-
-	if val, err := strconv.Atoi(r.FormValue("points")); err == nil {
-		points = val
-	}
-
-	models.Scores = append(models.Scores, models.Score{Place: uint64(rand.Intn(100)), Name: name, Points: uint64(points)})
-	ErrorMux(&w, r, http.StatusCreated)
 }
