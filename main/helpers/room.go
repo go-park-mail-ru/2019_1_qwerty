@@ -99,13 +99,17 @@ func CreateObject(r *Room) []ObjectState {
 }
 
 func insertScoreToDB(players map[string]*Player) {
+	log.Println("insertScore...")
 	for _, player := range players {
+		log.Println(player.ID, player.score)
 		err := database.Database.QueryRow("SELECT player FROM scores WHERE player = $1", player.ID).Scan(&player.ID)
 
 		var errIU error
 		if err != nil {
+			log.Println("will INSERT")
 			_, errIU = database.Database.Exec("INSERT INTO scores(player, score) VALUES($1, $2)", player.ID, player.score)
 		} else {
+			log.Println("will UPDATE")
 			_, errIU = database.Database.Exec("UPDATE scores SET score = $1 WHERE player = $2", player.score, player.ID)
 		}
 
@@ -179,6 +183,7 @@ func (r *Room) Run() {
 								}
 
 								r.mu.Lock()
+								log.Println("adding points")
 								insertScoreToDB(r.Players)
 								r.mu.Unlock()
 								return
