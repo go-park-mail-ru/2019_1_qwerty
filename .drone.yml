@@ -101,8 +101,8 @@ steps:
       {{else}}
         БЭКЕНД: Билд "{{commit.message}}" от {{commit.author}} на {{build.event}} в {{repo.owner}}{{repo.name}}:{{commit.branch}} ПРОВАЛЕН. {{commit.link}}
       {{/success}}
-    when:
-    event:
-    - push
+  when:
     branch:
     - master
+    event:
+    - push
