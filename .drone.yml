@@ -94,7 +94,7 @@ steps:
     token: 
       from_secret: tg_token
     to: 
-      from_secret: tg_user
+      from_secret: tg_chat
     message: >
       {{#success build.status}}
         {{repo.owner}}{{repo.name}}: Билд "{{commit.message}}" от **{{commit.author}}** на **{{build.event}}** в **{{commit.branch}}** успешно собран.
