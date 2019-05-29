@@ -92,8 +92,8 @@ const sqlSelectScoreByNickname = `
 	`
 
 // DBUserGetScore - Get user score by nickname
-func DBUserGetScore(nickname string) (int, error) {
-	var score int
+func DBUserGetScore(nickname string) (uint64, error) {
+	var score uint64
 	row := database.Database.QueryRow(sqlSelectScoreByNickname, nickname)
 	if err := row.Scan(&score); err != nil {
 		log.Println(err)
