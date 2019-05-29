@@ -45,8 +45,9 @@ type Room struct {
 }
 
 //NewRoom - create new room
-func NewRoom(maxPlayers int) *Room {
+func NewRoom(maxPlayers int, id string) *Room {
 	return &Room{
+		ID: id,
 		MaxPlayers: maxPlayers,
 		register:   make(chan *Player),
 		unregister: make(chan *Player),
@@ -130,8 +131,14 @@ func (r *Room) Run() {
 			for _, p := range r.Players {
 				delete(r.Players, p.number)
 				p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
+				p.conn.Close()
 			}
 			r.mu.Unlock()
+
+			MainGame.mu.Lock()
+			MainGame.RemoveRoom(r)
+			MainGame.mu.Unlock()
+			
 			return
 
 		case player := <-r.register:
@@ -187,8 +194,11 @@ func (r *Room) Run() {
 									delete(r.Players, p.number)
 									r.mu.Unlock()
 									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
+									p.conn.Close()
 								}
-
+								MainGame.mu.Lock()
+								MainGame.RemoveRoom(r)
+								MainGame.mu.Unlock()
 								return
 							}
 
