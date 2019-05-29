@@ -55,6 +55,7 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	file, fileHeader, err := r.FormFile("file")
 
 	if err != nil {
+		log.Println(err)
 		ErrorMux(&w, r, http.StatusBadRequest)
 		return
 	}
@@ -183,8 +184,12 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	user := helpers.GetOwner(string(cookie.Value))
 	log.Println(user)
 	res, _ := helpers.DBUserGet(user)
-	log.Println(res)
-	res.Score = 100
+	score, errScore := helpers.DBUserGetScore(res.Nickname)
+	if errScore != nil {
+		res.Score = 0
+	} else {
+		res.Score = score
+	}
 	log.Println(res)
 
 	if res.Avatar != "" {

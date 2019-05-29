@@ -86,6 +86,22 @@ func DBUserGet(nickname string) (*models.User, error) {
 	return &user, nil
 }
 
+const sqlSelectScoreByNickname = `
+	SELECT score FROM scores
+	WHERE player = $1
+	`
+
+// DBUserGetScore - Get user score by nickname
+func DBUserGetScore(nickname string) (int, error) {
+	var score int
+	row := database.Database.QueryRow(sqlSelectScoreByNickname, nickname)
+	if err := row.Scan(&score); err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return score, nil
+}
+
 // // hash - Функция хеширования пароля
 // func hash(input string) ([]byte, error) {
 // 	return bcrypt.GenerateFromPassword([]byte(input), bcrypt.DefaultCost)
