@@ -8,7 +8,7 @@ import (
 type Game struct {
 	MaxRooms int
 	mu       *sync.Mutex
-	rooms    []*Room
+	rooms    map[string]*Room
 	register chan *Player
 }
 
@@ -29,7 +29,12 @@ func NewGame(maxRooms int) *Game {
 
 //AddRoom - adds room to game
 func (g *Game) AddRoom(room *Room) {
-	g.rooms = append(g.rooms, room)
+	g.rooms[room.ID] = room
+}
+
+//RemoveRoom - removes room from the game
+func (g *Game) RemoveRoom(room *Room) {
+	delete(g.rooms, room.ID)
 }
 
 //AddPlayer - add player to room
@@ -58,10 +63,10 @@ LOOP:
 			}
 		}
 
-		room := NewRoom(2)
-		room.mu.Lock()
+		room := NewRoom(2, player.ID)
+		g.mu.Lock()
 		g.AddRoom(room)
-		room.mu.Unlock()
+		g.mu.Unlock()
 		go room.Run()
 		room.mu.Lock()
 		player.number = "player1"
