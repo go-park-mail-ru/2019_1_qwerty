@@ -2,6 +2,7 @@ package router
 
 import (
 	api "2019_1_qwerty/handlers"
+	"2019_1_qwerty/helpers"
 	"2019_1_qwerty/middlewares"
 	"log"
 	"net/http"
@@ -19,6 +20,7 @@ func Start(port string) error {
 	// router.HandleFunc("/metrics", promhttp.Handler)
 	prometheus.MustRegister(api.Hits)
 	prometheus.MustRegister(api.FooCount)
+	prometheus.MustRegister(helpers.RoomCount)
 	router.Handle("/metrics", promhttp.Handler())
 	routerAPI := router.PathPrefix("/api").Subrouter()
 	routerAPI.HandleFunc("/user/signup", api.CreateUser).Methods("POST", "OPTIONS")
