@@ -184,12 +184,8 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	user := helpers.GetOwner(string(cookie.Value))
 	log.Println(user)
 	res, _ := helpers.DBUserGet(user)
-	score, errScore := helpers.DBUserGetScore(res.Nickname)
-	if errScore != nil {
-		res.Score = 0
-	} else {
-		res.Score = score
-	}
+	res.Score, errScore := helpers.DBUserGetScore(res.Nickname)
+	
 	log.Println(res)
 
 	if res.Avatar != "" {

@@ -97,7 +97,7 @@ func DBUserGetScore(nickname string) (int, error) {
 	row := database.Database.QueryRow(sqlSelectScoreByNickname, nickname)
 	if err := row.Scan(&score); err != nil {
 		log.Println(err)
-		return nil, err
+		return 0, err
 	}
 	return score, nil
 }
