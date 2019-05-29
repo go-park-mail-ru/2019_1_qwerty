@@ -171,6 +171,7 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 
 //GetProfileInfo - return player data
 func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
+	log.Println("into get profile")
 	w.Header().Set("Content-Type", "application/json")
 	cookie, err := r.Cookie("sessionid")
 
@@ -180,7 +181,9 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := helpers.GetOwner(string(cookie.Value))
+	log.Println(user)
 	res, _ := helpers.DBUserGet(user)
+	log.Println(res)
 
 	if res.Avatar != "" {
 		reqParams := make(url.Values)
@@ -190,10 +193,13 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		res.Avatar = presignedURL.String()
+		res.Score = 100
+		log.Println(res)
 	}
 
 	ErrorMux(&w, r, http.StatusOK)
 	result, _ := res.MarshalJSON()
+	log.Println(result)
 	w.Write(result)
 }
 

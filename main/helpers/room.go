@@ -131,7 +131,6 @@ func (r *Room) Run() {
 			for _, p := range r.Players {
 				delete(r.Players, p.number)
 				p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
-				p.conn.Close()
 			}
 			r.mu.Unlock()
 
@@ -194,7 +193,6 @@ func (r *Room) Run() {
 									delete(r.Players, p.number)
 									r.mu.Unlock()
 									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
-									p.conn.Close()
 								}
 								MainGame.mu.Lock()
 								MainGame.RemoveRoom(r)
