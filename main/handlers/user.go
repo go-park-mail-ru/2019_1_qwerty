@@ -184,7 +184,7 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	user := helpers.GetOwner(string(cookie.Value))
 	log.Println(user)
 	res, _ := helpers.DBUserGet(user)
-	res.Score, errScore := helpers.DBUserGetScore(res.Nickname)
+	res.Score, _ = helpers.DBUserGetScore(res.Nickname)
 	
 	log.Println(res)
 
