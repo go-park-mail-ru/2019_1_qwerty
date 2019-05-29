@@ -22,8 +22,10 @@ func init() {
 //NewGame - creates new game
 func NewGame(maxRooms int) *Game {
 	return &Game{
-		register: make(chan *Player),
-		MaxRooms: maxRooms,
+		mu:			new(sync.Mutex),
+		register: 	make(chan *Player),
+		MaxRooms: 	maxRooms,
+		rooms:		make(map[string]*Room),
 	}
 }
 
