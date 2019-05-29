@@ -184,6 +184,8 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	log.Println(user)
 	res, _ := helpers.DBUserGet(user)
 	log.Println(res)
+	res.Score = 100
+	log.Println(res)
 
 	if res.Avatar != "" {
 		reqParams := make(url.Values)
@@ -193,8 +195,6 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		res.Avatar = presignedURL.String()
-		res.Score = 100
-		log.Println(res)
 	}
 
 	ErrorMux(&w, r, http.StatusOK)
