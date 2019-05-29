@@ -51,15 +51,19 @@ func init() {
 
 //UpdateAvatar - upload avatar to static folder
 func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(5 * 1024 * 1024)
-	file, fileHeader, err := r.FormFile("file")
-
+	err := r.ParseMultipartForm(5 * 1024 * 1024)
 	if err != nil {
-		log.Println(err)
-		ErrorMux(&w, r, http.StatusBadRequest)
+		log.Println("Ошибка при парсинге тела запроса", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		log.Println("Ошибка при получении файла из тела запроса", err)
+		ErrorMux(&w, r, http.StatusInternalServerError)
+		return
+	}
 	defer file.Close()
 
 	cookie, err := r.Cookie("sessionid")
@@ -185,7 +189,6 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	log.Println(user)
 	res, _ := helpers.DBUserGet(user)
 	res.Score, _ = helpers.DBUserGetScore(res.Nickname)
-	
 	log.Println(res)
 
 	if res.Avatar != "" {
