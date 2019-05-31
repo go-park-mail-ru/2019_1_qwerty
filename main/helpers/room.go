@@ -14,6 +14,7 @@ type PlayerState struct {
 	ID string
 	X  int
 	Y  int
+	Score int
 }
 
 //ObjectState - object state in room->game
@@ -81,6 +82,7 @@ func CreatePlayerState(players map[string]*Player) *RoomState {
 	for _, player := range players {
 		tmp := state.Players[player.number]
 		tmp.ID = player.ID
+		tmp.Score = 0
 		tmp.X = 50
 		tmp.Y = 50 * (i + 1)
 		state.Players[player.number] = tmp
@@ -93,7 +95,7 @@ func CreatePlayerState(players map[string]*Player) *RoomState {
 //CreateObject - create meteor
 func CreateObject(r *Room) []ObjectState {
 	rand.Seed(time.Now().UnixNano())
-	object := ObjectState{X: 350, Y: rand.Intn(120-30) + 30, Speed: rand.Intn(3-1) + 1}
+	object := ObjectState{X: 350, Y: rand.Intn(120-30) + 30, Speed: rand.Intn(9-6) + 6}
 	r.state.Objects = append(r.state.Objects, object)
 	return r.state.Objects
 }
@@ -161,6 +163,9 @@ func (r *Room) Run() {
 				r.state.Objects = CreateObject(r)
 				for _, player := range r.Players {
 					player.score += 5
+					tmp := r.state.Players[player.number]
+					tmp.Score = player.score
+					r.state.Players[player.number] = tmp
 				}
 			}
 
