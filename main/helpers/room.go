@@ -53,7 +53,7 @@ func NewRoom(maxPlayers int, id string) *Room {
 		register:   make(chan *Player),
 		unregister: make(chan *Player),
 		ticker:     time.NewTicker(50 * time.Millisecond),   // HAS TO BEE 100 * ...
-		workTicker: time.NewTicker(1500 * time.Millisecond), // meteors
+		workTicker: time.NewTicker(750 * time.Millisecond), // meteors
 		Players:    make(map[string]*Player),
 		mu:         new(sync.Mutex),
 	}
