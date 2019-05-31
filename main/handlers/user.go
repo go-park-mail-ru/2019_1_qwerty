@@ -198,7 +198,9 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
-		res.Avatar = presignedURL.String()
+		url := presignedURL.String()
+		url = url[:4] + "s" + url[4:]
+		res.Avatar = url
 	}
 
 	ErrorMux(&w, r, http.StatusOK)
