@@ -51,7 +51,7 @@ func init() {
 
 //UpdateAvatar - upload avatar to static folder
 func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(5 * 1024 * 1024)
+	err := r.ParseMultipartForm(9223372036854775806)
 	if err != nil {
 		log.Println("Ошибка при парсинге тела запроса", err)
 		w.WriteHeader(http.StatusInternalServerError)
