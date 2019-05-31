@@ -51,10 +51,10 @@ func init() {
 
 //UpdateAvatar - upload avatar to static folder
 func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(5 * 1024 * 1024)
+	err := r.ParseMultipartForm(9223372036854775806)
 	if err != nil {
 		log.Println("Ошибка при парсинге тела запроса", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		ErrorMux(&w, r, http.StatusInternalServerError)
 		return
 	}
 
@@ -79,7 +79,8 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	_, err = s3Client.PutObject(bucketName, objectName, file, -1, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		ErrorMux(&w, r, http.StatusInternalServerError)
 	}
 
 	err = helpers.DBUserUpdateAvatar(nickname, objectName)
@@ -176,7 +177,6 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 
 //GetProfileInfo - return player data
 func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
-	log.Println("into get profile")
 	w.Header().Set("Content-Type", "application/json")
 	cookie, err := r.Cookie("sessionid")
 
@@ -186,10 +186,8 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := helpers.GetOwner(string(cookie.Value))
-	log.Println(user)
 	res, _ := helpers.DBUserGet(user)
 	res.Score, _ = helpers.DBUserGetScore(res.Nickname)
-	log.Println(res)
 
 	if res.Avatar != "" {
 		reqParams := make(url.Values)
@@ -205,17 +203,14 @@ func GetProfileInfo(w http.ResponseWriter, r *http.Request) {
 
 	ErrorMux(&w, r, http.StatusOK)
 	result, _ := res.MarshalJSON()
-	log.Println(result)
 	w.Write(result)
 }
 
 //UpdateProfileInfo - updates player data
 func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	log.Println("to update")
 	body, _ := ioutil.ReadAll(r.Body)
 	user := models.User{}
 	user.UnmarshalJSON(body)
-	log.Println("new settings:", user.Nickname, user.Password)
 	cookie, err := r.Cookie("sessionid")
 
 	if err != nil {
@@ -224,10 +219,9 @@ func UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	nickname := helpers.GetOwner(string(cookie.Value))
-	log.Println(nickname)
 	err = helpers.DBUserUpdate(nickname, &user)
-
 	if err != nil {
+		log.Println(err)
 		ErrorMux(&w, r, http.StatusNotFound)
 		return
 	}

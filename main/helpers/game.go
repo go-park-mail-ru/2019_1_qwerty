@@ -2,14 +2,7 @@ package helpers
 
 import (
 	"sync"
-
-	"github.com/prometheus/client_golang/prometheus"
 )
-
-var RoomCount = prometheus.NewCounter(prometheus.CounterOpts{
-	Name: "RoomCount",
-	Help: "Number of rooms.",
-})
 
 //Game - main game struct
 type Game struct {
@@ -38,13 +31,11 @@ func NewGame(maxRooms int) *Game {
 
 //AddRoom - adds room to game
 func (g *Game) AddRoom(room *Room) {
-	RoomCount.Add(1)
 	g.rooms[room.ID] = room
 }
 
 //RemoveRoom - removes room from the game
 func (g *Game) RemoveRoom(room *Room) {
-	RoomCount.Add(-1)
 	delete(g.rooms, room.ID)
 }
 
