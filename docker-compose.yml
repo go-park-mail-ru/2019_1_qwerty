@@ -19,8 +19,6 @@ services:
     depends_on:
       - backend
       - backend_s3
-      - grafana
-      - prometheus
     restart: on-failure
 
   backend:
