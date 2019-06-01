@@ -37,7 +37,7 @@ func handleCoordinates(player *Player, message *models.Logs) {
 			tmp.X = tmp.X - 2
 		}
 	case "RIGHT":
-		if tmp.X+2 < 300 {
+		if tmp.X+2 < 295 {
 			tmp.X = tmp.X + 2
 		}
 	case "UP":
@@ -45,7 +45,7 @@ func handleCoordinates(player *Player, message *models.Logs) {
 			tmp.Y = tmp.Y - 2
 		}
 	case "DOWN":
-		if tmp.Y+2 < 150 {
+		if tmp.Y+2 < 145 {
 			tmp.Y = tmp.Y + 2
 		}
 	}
