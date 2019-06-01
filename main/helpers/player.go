@@ -33,13 +33,21 @@ func handleCoordinates(player *Player, message *models.Logs) {
 	tmp := player.room.state.Players[player.number]
 	switch message.Head {
 	case "LEFT":
-		tmp.X = tmp.X - 2
+		if tmp.X-2 > 0 {
+			tmp.X = tmp.X - 2
+		}
 	case "RIGHT":
-		tmp.X = tmp.X + 2
+		if tmp.X+2 < 300 {
+			tmp.X = tmp.X + 2
+		}
 	case "UP":
-		tmp.Y = tmp.Y - 2
+		if tmp.Y-2 > 0 {
+			tmp.Y = tmp.Y - 2
+		}
 	case "DOWN":
-		tmp.Y = tmp.Y + 2
+		if tmp.Y+2 < 150 {
+			tmp.Y = tmp.Y + 2
+		}
 	}
 	player.room.state.Players[player.number] = tmp
 }
