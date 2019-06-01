@@ -11,9 +11,9 @@ import (
 
 //PlayerState - player state in room->game
 type PlayerState struct {
-	ID string
-	X  int
-	Y  int
+	ID    string
+	X     int
+	Y     int
 	Score int
 }
 
@@ -48,7 +48,7 @@ type Room struct {
 //NewRoom - create new room
 func NewRoom(maxPlayers int, id string) *Room {
 	return &Room{
-		ID: id,
+		ID:         id,
 		MaxPlayers: maxPlayers,
 		register:   make(chan *Player),
 		unregister: make(chan *Player),
@@ -139,7 +139,7 @@ func (r *Room) Run() {
 			MainGame.mu.Lock()
 			MainGame.RemoveRoom(r)
 			MainGame.mu.Unlock()
-			
+
 			return
 
 		case player := <-r.register:
@@ -194,10 +194,16 @@ func (r *Room) Run() {
 
 								for _, p := range r.Players {
 									p.SendState(r.state)
+
+									if p.ID == player.ID {
+										p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: "LOST"})
+									} else {
+										p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: "WON"})
+									}
+
 									r.mu.Lock()
 									delete(r.Players, p.number)
 									r.mu.Unlock()
-									p.SendMessage(&models.Logs{Head: "GAME ENDED", Content: nil})
 								}
 								MainGame.mu.Lock()
 								MainGame.RemoveRoom(r)
