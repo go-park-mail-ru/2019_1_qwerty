@@ -94,15 +94,15 @@ steps:
     token: 
       from_secret: tg_token
     to: 
-      from_secret: tg_chat
+      from_secret: tg_user
     message: >
       {{#success build.status}}
         БЭКЕНД: Билд "{{commit.message}}" от {{commit.author}} на {{build.event}} в {{repo.owner}}{{repo.name}}:{{commit.branch}} успешно собран.
       {{else}}
         БЭКЕНД: Билд "{{commit.message}}" от {{commit.author}} на {{build.event}} в {{repo.owner}}{{repo.name}}:{{commit.branch}} ПРОВАЛЕН. {{commit.link}}
       {{/success}}
-    when:
-    event:
-    - push
+  when:
     branch:
     - master
+    event:
+    - push
