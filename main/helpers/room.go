@@ -53,7 +53,7 @@ func NewRoom(maxPlayers int, id string) *Room {
 		register:   make(chan *Player),
 		unregister: make(chan *Player),
 		ticker:     time.NewTicker(50 * time.Millisecond),   // HAS TO BEE 100 * ...
-		workTicker: time.NewTicker(1500 * time.Millisecond), // meteors
+		workTicker: time.NewTicker(750 * time.Millisecond), // meteors
 		Players:    make(map[string]*Player),
 		mu:         new(sync.Mutex),
 	}
@@ -95,7 +95,7 @@ func CreatePlayerState(players map[string]*Player) *RoomState {
 //CreateObject - create meteor
 func CreateObject(r *Room) []ObjectState {
 	rand.Seed(time.Now().UnixNano())
-	object := ObjectState{X: 350, Y: rand.Intn(120-30) + 30, Speed: rand.Intn(3-1) + 1}
+	object := ObjectState{X: 350, Y: rand.Intn(135-5) + 5, Speed: rand.Intn(9-6) + 6}
 	r.state.Objects = append(r.state.Objects, object)
 	return r.state.Objects
 }
