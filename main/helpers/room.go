@@ -181,7 +181,7 @@ func (r *Room) Run() {
 
 					if object.X > -30 {
 
-						sumOfRad := 30.0 // sum of radiuses
+						sumOfRad := 25.0 // sum of radiuses
 						for _, player := range r.state.Players {
 							centres := math.Sqrt(float64(((player.X - object.X) * (player.X - object.X)) + ((player.Y - object.Y) * (player.Y - object.Y))))
 
