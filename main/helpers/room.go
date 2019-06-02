@@ -108,6 +108,7 @@ const sqlInsertPlayer = `
 const sqlUpdatePlayer = `
 	UPDATE scores 
 	SET score = GREATEST($2, (SELECT score FROM scores WHERE player = $1))
+	WHERE player = $1
 `
 
 func insertScoreToDB(players map[string]*Player) {
